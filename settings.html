@@ -1,0 +1,1130 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | VYORA AI</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #080713;
+            --panel: rgba(23, 19, 44, .88);
+            --panel2: rgba(31, 25, 57, .75);
+            --border: rgba(166, 133, 255, .17);
+            --purple: #a879ff;
+            --pink: #ed75d8;
+            --blue: #68a9ff;
+            --muted: #9994b2;
+            --text: #f5f1ff;
+            --input: #100d20;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                    radial-gradient(ellipse at 75% 0%, rgba(115, 65, 210, .18), transparent 38%),
+                    radial-gradient(ellipse at 0% 80%, rgba(55, 85, 190, .10), transparent 35%),
+                    var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        body.light-theme {
+            --bg: #f3f0fc;
+            --panel: rgba(255, 255, 255, .94);
+            --panel2: #f5f1ff;
+            --border: rgba(113, 77, 180, .19);
+            --muted: #706985;
+            --text: #211936;
+            --input: #f1edf9;
+            background: #f3f0fc;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button, input, select {
+            font: inherit;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 245px;
+            padding: 27px 17px;
+            border-right: 1px solid var(--border);
+            background: rgba(10, 8, 23, .91);
+            position: fixed;
+            inset: 0 auto 0 0;
+            z-index: 5;
+            backdrop-filter: blur(20px);
+        }
+
+        .brand {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 25px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            padding: 0 12px 35px;
+            color: white;
+        }
+
+        .brand span {
+            background: linear-gradient(90deg, #a878ff, #ed77e4, #69aaff);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .nav-label {
+            color: #77718f;
+            font-size: 10px;
+            letter-spacing: 2px;
+            font-weight: 700;
+            padding: 0 13px;
+            margin: 20px 0 10px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 12px 13px;
+            border-radius: 12px;
+            color: #aaa5c0;
+            font-size: 13px;
+            margin: 4px 0;
+            transition: .25s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: white;
+            background: linear-gradient(100deg, rgba(142, 91, 255, .22), rgba(142, 91, 255, .06));
+            box-shadow: inset 2px 0 #a77aff;
+        }
+
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .main {
+            margin-left: 245px;
+            width: calc(100% - 245px);
+            max-width: 1600px;
+            padding: 36px 42px 60px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .eyebrow {
+            color: #ad83ff;
+            font-size: 10px;
+            letter-spacing: 3px;
+            font-weight: 700;
+            margin-bottom: 9px;
+        }
+
+        h1 {
+            font: 700 clamp(28px, 4vw, 38px) 'Space Grotesk', sans-serif;
+            letter-spacing: -1.5px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .save-btn {
+            border: 0;
+            padding: 12px 20px;
+            border-radius: 11px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            background: linear-gradient(110deg, #8051e7, #b36bfa, #e16bd8);
+            box-shadow: 0 7px 25px rgba(151, 92, 245, .25);
+            transition: .25s;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(151, 92, 245, .4);
+        }
+
+        .notice {
+            border: 1px solid rgba(155, 108, 255, .24);
+            background: rgba(123, 76, 211, .09);
+            border-radius: 12px;
+            padding: 13px 16px;
+            color: #c8b6f5;
+            font-size: 12px;
+            margin-bottom: 25px;
+        }
+
+        .settings-layout {
+            display: grid;
+            grid-template-columns: 225px minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        .settings-nav,
+        .settings-card {
+            background: linear-gradient(145deg, var(--panel), rgba(15, 13, 31, .93));
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, .10);
+        }
+
+        .settings-nav {
+            padding: 13px;
+            position: sticky;
+            top: 20px;
+        }
+
+        .settings-nav a {
+            display: block;
+            padding: 12px;
+            border-radius: 10px;
+            color: var(--muted);
+            font-size: 12px;
+            margin: 3px 0;
+            transition: .2s;
+        }
+
+        .settings-nav a:hover,
+        .settings-nav a.selected {
+            color: var(--text);
+            background: rgba(151, 105, 255, .15);
+        }
+
+        .settings-content {
+            display: grid;
+            gap: 19px;
+            min-width: 0;
+        }
+
+        .settings-card {
+            padding: 25px;
+            scroll-margin-top: 20px;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            font-size: 19px;
+            background: rgba(155, 108, 255, .15);
+            color: #c5a4ff;
+        }
+
+        .section-heading h2 {
+            font: 600 16px 'Space Grotesk', sans-serif;
+        }
+
+        .section-heading p {
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 17px;
+            margin-bottom: 23px;
+        }
+
+        .avatar {
+            width: 65px;
+            height: 65px;
+            display: grid;
+            place-items: center;
+            border-radius: 19px;
+            font: 700 24px 'Space Grotesk';
+            color: white;
+            background: linear-gradient(135deg, #8051e7, #e16bd8, #568ff0);
+            box-shadow: 0 8px 25px rgba(151, 92, 245, .22);
+        }
+
+        .profile-info strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        .profile-info span {
+            display: block;
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .field-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .field {
+            display: grid;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        .field label {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            min-width: 0;
+            padding: 12px 13px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            outline: none;
+            color: var(--text);
+            background: var(--input);
+            font-size: 12px;
+            transition: .2s;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            border-color: #a879ff;
+            box-shadow: 0 0 0 3px rgba(168, 121, 255, .10);
+        }
+
+        .field select option {
+            background: #17132a;
+            color: white;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .setting-row:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .setting-copy strong {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .setting-copy p {
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 5px;
+            line-height: 1.5;
+        }
+
+        .toggle {
+            position: relative;
+            width: 45px;
+            height: 25px;
+            flex-shrink: 0;
+        }
+
+        .toggle input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle span {
+            position: absolute;
+            inset: 0;
+            border-radius: 30px;
+            cursor: pointer;
+            background: #38314d;
+            transition: .25s;
+        }
+
+        .toggle span::before {
+            content: "";
+            position: absolute;
+            width: 19px;
+            height: 19px;
+            left: 3px;
+            top: 3px;
+            border-radius: 50%;
+            background: white;
+            transition: .25s;
+        }
+
+        .toggle input:checked + span {
+            background: linear-gradient(90deg, #8051e7, #d16ee5);
+        }
+
+        .toggle input:checked + span::before {
+            transform: translateX(20px);
+        }
+
+        .toggle input:focus-visible + span {
+            outline: 2px solid #c7a7ff;
+            outline-offset: 3px;
+        }
+
+        .security-box {
+            display: flex;
+            gap: 13px;
+            padding: 16px;
+            border: 1px solid rgba(112, 223, 179, .20);
+            background: rgba(112, 223, 179, .06);
+            border-radius: 12px;
+            color: #a5e9ce;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .security-box strong {
+            display: block;
+            margin-bottom: 4px;
+            color: #b8f3da;
+        }
+
+        .status-message {
+            color: #8ee6bd;
+            font-size: 12px;
+            margin-top: 15px;
+            min-height: 18px;
+        }
+
+        .danger-btn {
+            padding: 10px 14px;
+            border-radius: 9px;
+            border: 1px solid rgba(237, 117, 216, .3);
+            background: rgba(237, 117, 216, .08);
+            color: #ed9de2;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .danger-btn:hover {
+            background: rgba(237, 117, 216, .16);
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 30px;
+        }
+
+        body.light-theme .sidebar {
+            background: #211936;
+        }
+
+        body.light-theme .settings-card,
+        body.light-theme .settings-nav {
+            background: white;
+        }
+
+        body.light-theme .field input,
+        body.light-theme .field select {
+            background: #f5f2fa;
+        }
+
+        @media (max-width: 1050px) {
+            .settings-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .settings-nav {
+                position: static;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+
+            .settings-nav a {
+                padding: 9px 11px;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .sidebar {
+                width: 68px;
+                padding: 20px 8px;
+            }
+
+            .brand {
+                font-size: 0;
+                padding: 5px 8px 30px;
+            }
+
+            .brand span {
+                font-size: 18px;
+            }
+
+            .nav-label,
+            .nav-link .nav-text {
+                display: none;
+            }
+
+            .nav-link {
+                justify-content: center;
+                padding: 13px 5px;
+            }
+
+            .main {
+                margin-left: 68px;
+                width: calc(100% - 68px);
+                padding: 25px 17px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .field-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .field.full {
+                grid-column: auto;
+            }
+
+            .settings-card {
+                padding: 18px;
+            }
+
+            .settings-nav {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .setting-row {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="layout">
+
+    <aside class="sidebar">
+        <div class="brand"><span>VYORA</span> AI</div>
+
+        <div class="nav-label">WORKSPACE</div>
+
+        <a class="nav-link" href="/">
+            <span class="nav-icon">⌂</span>
+            <span class="nav-text">Dashboard</span>
+        </a>
+
+        <a class="nav-link" href="/images">
+            <span class="nav-icon">✧</span>
+            <span class="nav-text">AI Images</span>
+        </a>
+
+        <a class="nav-link" href="/videos">
+            <span class="nav-icon">▶</span>
+            <span class="nav-text">AI Videos</span>
+        </a>
+
+        <a class="nav-link" href="/creations">
+            <span class="nav-icon">▧</span>
+            <span class="nav-text">My Creations</span>
+        </a>
+
+        <div class="nav-label">LIBRARY</div>
+
+        <a class="nav-link" href="/storage">
+            <span class="nav-icon">▤</span>
+            <span class="nav-text">Storage</span>
+        </a>
+
+        <a class="nav-link" href="/favorites">
+            <span class="nav-icon">♡</span>
+            <span class="nav-text">Favorites</span>
+        </a>
+
+        <a class="nav-link" href="/history">
+            <span class="nav-icon">◷</span>
+            <span class="nav-text">History</span>
+        </a>
+
+        <div class="nav-label">INSIGHTS</div>
+
+        <a class="nav-link" href="/analytics">
+            <span class="nav-icon">▥</span>
+            <span class="nav-text">Analytics</span>
+        </a>
+
+        <a class="nav-link active" href="/settings">
+            <span class="nav-icon">⚙</span>
+            <span class="nav-text">Settings</span>
+        </a>
+    </aside>
+
+    <main class="main">
+
+        <header class="topbar">
+            <div>
+                <div class="eyebrow">VYORA CONTROL CENTER / PREFERENCES</div>
+                <h1>Settings<span style="color:#a879ff">.</span></h1>
+                <p class="subtitle">
+                    Customize your workspace and creative experience.
+                </p>
+            </div>
+
+            <button class="save-btn" id="saveButton">
+                Save Changes ↗
+            </button>
+        </header>
+
+        <div class="notice">
+            ✦ Your settings are currently saved in this browser only.
+            Account-wide synchronization will be added with backend integration.
+        </div>
+
+        <div class="settings-layout">
+
+            <nav class="settings-nav">
+                <a class="selected" href="#profile">◉ &nbsp; Profile</a>
+                <a href="#appearance">✧ &nbsp; Appearance</a>
+                <a href="#images">▧ &nbsp; Image Defaults</a>
+                <a href="#videos">▶ &nbsp; Video Defaults</a>
+                <a href="#notifications">♧ &nbsp; Notifications</a>
+                <a href="#security">◇ &nbsp; Privacy & Security</a>
+            </nav>
+
+            <div class="settings-content">
+
+                <!-- PROFILE -->
+
+                <section class="settings-card" id="profile">
+                    <div class="section-heading">
+                        <div class="section-icon">◉</div>
+                        <div>
+                            <h2>Profile Settings</h2>
+                            <p>Manage your workspace profile information.</p>
+                        </div>
+                    </div>
+
+                    <div class="profile">
+                        <div class="avatar">V</div>
+                        <div class="profile-info">
+                            <strong>VYORA Creator</strong>
+                            <span>Workspace profile</span>
+                        </div>
+                    </div>
+
+                    <div class="field-grid">
+                        <div class="field">
+                            <label for="displayName">Display Name</label>
+                            <input id="displayName" type="text"
+                                   placeholder="Your display name">
+                        </div>
+
+                        <div class="field">
+                            <label for="workspace">Workspace Name</label>
+                            <input id="workspace" type="text"
+                                   placeholder="My Creative Studio">
+                        </div>
+
+                        <div class="field full">
+                            <label for="bio">Short Bio</label>
+                            <input id="bio" type="text"
+                                   placeholder="Tell us about your creative workspace">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- APPEARANCE -->
+
+                <section class="settings-card" id="appearance">
+                    <div class="section-heading">
+                        <div class="section-icon">✧</div>
+                        <div>
+                            <h2>Appearance</h2>
+                            <p>Personalize the look of your VYORA workspace.</p>
+                        </div>
+                    </div>
+
+                    <div class="field-grid">
+                        <div class="field">
+                            <label for="theme">Interface Theme</label>
+                            <select id="theme">
+                                <option value="dark">Dark — VYORA Night</option>
+                                <option value="light">Light — VYORA Day</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="accent">Accent Color</label>
+                            <select id="accent">
+                                <option value="purple">Electric Purple</option>
+                                <option value="blue">Cyber Blue</option>
+                                <option value="pink">Neon Pink</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-copy">
+                            <strong>Animated Interface</strong>
+                            <p>Enable interface transitions and visual effects.</p>
+                        </div>
+
+                        <label class="toggle">
+                            <input type="checkbox" id="animations" checked>
+                            <span></span>
+                        </label>
+                    </div>
+                </section>
+
+                <!-- IMAGE DEFAULTS -->
+
+                <section class="settings-card" id="images">
+                    <div class="section-heading">
+                        <div class="section-icon">▧</div>
+                        <div>
+                            <h2>Image Generation Defaults</h2>
+                            <p>Choose your preferred starting settings for AI images.</p>
+                        </div>
+                    </div>
+
+                    <div class="field-grid">
+                        <div class="field">
+                            <label for="imageRatio">Default Aspect Ratio</label>
+                            <select id="imageRatio">
+                                <option value="1:1">Square · 1:1</option>
+                                <option value="16:9">Landscape · 16:9</option>
+                                <option value="9:16">Portrait · 9:16</option>
+                                <option value="4:3">Classic · 4:3</option>
+                                <option value="3:2">Photo · 3:2</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="imageQuality">Default Quality</label>
+                            <select id="imageQuality">
+                                <option value="standard">Standard</option>
+                                <option value="high">High</option>
+                                <option value="ultra">Ultra</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="imageStyle">Preferred Style</label>
+                            <select id="imageStyle">
+                                <option value="cinematic">Cinematic</option>
+                                <option value="realistic">Photorealistic</option>
+                                <option value="anime">Anime</option>
+                                <option value="digital-art">Digital Art</option>
+                                <option value="3d">3D Render</option>
+                                <option value="minimal">Minimal</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="imageFormat">Preferred Format</label>
+                            <select id="imageFormat">
+                                <option value="png">PNG</option>
+                                <option value="jpg">JPG</option>
+                                <option value="webp">WebP</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIDEO DEFAULTS -->
+
+                <section class="settings-card" id="videos">
+                    <div class="section-heading">
+                        <div class="section-icon">▶</div>
+                        <div>
+                            <h2>Video Generation Defaults</h2>
+                            <p>Configure your preferred video creation starting point.</p>
+                        </div>
+                    </div>
+
+                    <div class="field-grid">
+                        <div class="field">
+                            <label for="videoRatio">Default Aspect Ratio</label>
+                            <select id="videoRatio">
+                                <option value="16:9">Landscape · 16:9</option>
+                                <option value="9:16">Portrait · 9:16</option>
+                                <option value="1:1">Square · 1:1</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="videoDuration">Default Duration</label>
+                            <select id="videoDuration">
+                                <option value="5">5 seconds</option>
+                                <option value="10">10 seconds</option>
+                                <option value="15">15 seconds</option>
+                                <option value="30">30 seconds</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="videoQuality">Default Quality</label>
+                            <select id="videoQuality">
+                                <option value="standard">Standard</option>
+                                <option value="high">High</option>
+                                <option value="ultra">Ultra</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="motion">Motion Preference</label>
+                            <select id="motion">
+                                <option value="subtle">Subtle</option>
+                                <option value="balanced">Balanced</option>
+                                <option value="dynamic">Dynamic</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- NOTIFICATIONS -->
+
+                <section class="settings-card" id="notifications">
+                    <div class="section-heading">
+                        <div class="section-icon">♧</div>
+                        <div>
+                            <h2>Notifications</h2>
+                            <p>Choose which workspace notifications you want.</p>
+                        </div>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-copy">
+                            <strong>Generation Completed</strong>
+                            <p>Show a notification when a creation finishes.</p>
+                        </div>
+
+                        <label class="toggle">
+                            <input type="checkbox" id="notifyComplete" checked>
+                            <span></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-copy">
+                            <strong>Generation Errors</strong>
+                            <p>Show a notification if a generation fails.</p>
+                        </div>
+
+                        <label class="toggle">
+                            <input type="checkbox" id="notifyErrors" checked>
+                            <span></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-copy">
+                            <strong>Product Updates</strong>
+                            <p>Show information about new VYORA features.</p>
+                        </div>
+
+                        <label class="toggle">
+                            <input type="checkbox" id="notifyUpdates">
+                            <span></span>
+                        </label>
+                    </div>
+                </section>
+
+                <!-- PRIVACY -->
+
+                <section class="settings-card" id="security">
+                    <div class="section-heading">
+                        <div class="section-icon">◇</div>
+                        <div>
+                            <h2>Privacy & Security</h2>
+                            <p>Understand how your workspace settings are handled.</p>
+                        </div>
+                    </div>
+
+                    <div class="security-box">
+                        <span>✓</span>
+                        <div>
+                            <strong>Local settings storage</strong>
+                            Your current preferences are stored in this browser.
+                            They are not yet synchronized with an online account.
+                        </div>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-copy">
+                            <strong>Clear Local Preferences</strong>
+                            <p>Restore this page's settings to their original defaults.</p>
+                        </div>
+
+                        <button class="danger-btn" id="resetButton" type="button">
+                            Reset Settings
+                        </button>
+                    </div>
+
+                    <p class="status-message" id="statusMessage" role="status"
+                       aria-live="polite"></p>
+                </section>
+
+            </div>
+        </div>
+
+        <div class="footer">
+            VYORA AI · WORKSPACE CONTROL CENTER · SETTINGS
+        </div>
+
+    </main>
+</div>
+
+<script>
+    const settingIds = [
+        "displayName",
+        "workspace",
+        "bio",
+        "theme",
+        "accent",
+        "animations",
+        "imageRatio",
+        "imageQuality",
+        "imageStyle",
+        "imageFormat",
+        "videoRatio",
+        "videoDuration",
+        "videoQuality",
+        "motion",
+        "notifyComplete",
+        "notifyErrors",
+        "notifyUpdates"
+    ];
+
+    const defaults = {
+        displayName: "",
+        workspace: "",
+        bio: "",
+        theme: "dark",
+        accent: "purple",
+        animations: true,
+        imageRatio: "1:1",
+        imageQuality: "standard",
+        imageStyle: "cinematic",
+        imageFormat: "png",
+        videoRatio: "16:9",
+        videoDuration: "5",
+        videoQuality: "standard",
+        motion: "balanced",
+        notifyComplete: true,
+        notifyErrors: true,
+        notifyUpdates: false
+    };
+
+    const STORAGE_KEY = "vyora_settings_v1";
+
+    function getCurrentSettings() {
+        const settings = {};
+
+        settingIds.forEach(function(id) {
+            const element = document.getElementById(id);
+
+            if (!element) return;
+
+            settings[id] = element.type === "checkbox"
+                ? element.checked
+                : element.value;
+        });
+
+        return settings;
+    }
+
+    function applySettings(settings) {
+        settingIds.forEach(function(id) {
+            const element = document.getElementById(id);
+
+            if (!element) return;
+
+            const value = settings[id] !== undefined
+                ? settings[id]
+                : defaults[id];
+
+            if (element.type === "checkbox") {
+                element.checked = Boolean(value);
+            } else {
+                element.value = value;
+            }
+        });
+
+        applyAppearance();
+    }
+
+    function applyAppearance() {
+        const theme = document.getElementById("theme").value;
+        const animations = document.getElementById("animations").checked;
+
+        document.body.classList.toggle(
+            "light-theme",
+            theme === "light"
+        );
+
+        document.body.classList.toggle(
+            "no-animations",
+            !animations
+        );
+
+        const accent = document.getElementById("accent").value;
+
+        const accentColors = {
+            purple: "#a879ff",
+            blue: "#68a9ff",
+            pink: "#ed75d8"
+        };
+
+        document.documentElement.style.setProperty(
+            "--purple",
+            accentColors[accent] || accentColors.purple
+        );
+    }
+
+    function showStatus(message) {
+        document.getElementById("statusMessage").textContent = message;
+    }
+
+    function saveSettings() {
+        const settings = getCurrentSettings();
+
+        try {
+            localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(settings)
+            );
+
+            applyAppearance();
+            showStatus("✓ Your preferences have been saved in this browser.");
+        } catch (error) {
+            showStatus("Unable to save preferences in this browser.");
+        }
+    }
+
+    function loadSettings() {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                applySettings(parsed);
+            } else {
+                applySettings(defaults);
+            }
+        } catch (error) {
+            applySettings(defaults);
+            showStatus("Default preferences loaded.");
+        }
+    }
+
+    function resetSettings() {
+        const confirmed = window.confirm(
+            "Reset all VYORA settings to their default values?"
+        );
+
+        if (!confirmed) return;
+
+        try {
+            localStorage.removeItem(STORAGE_KEY);
+            applySettings(defaults);
+            showStatus("Settings have been restored to their defaults.");
+        } catch (error) {
+            showStatus("Unable to reset browser preferences.");
+        }
+    }
+
+    document.getElementById("saveButton").addEventListener(
+        "click",
+        saveSettings
+    );
+
+    document.getElementById("resetButton").addEventListener(
+        "click",
+        resetSettings
+    );
+
+    document.getElementById("theme").addEventListener(
+        "change",
+        applyAppearance
+    );
+
+    document.getElementById("accent").addEventListener(
+        "change",
+        applyAppearance
+    );
+
+    document.getElementById("animations").addEventListener(
+        "change",
+        applyAppearance
+    );
+
+    document.querySelectorAll(".settings-nav a").forEach(function(link) {
+        link.addEventListener("click", function() {
+            document.querySelectorAll(".settings-nav a").forEach(function(item) {
+                item.classList.remove("selected");
+            });
+
+            link.classList.add("selected");
+        });
+    });
+
+    loadSettings();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,919 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VYORA AI — Storage</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #080711;
+            --panel: rgba(21, 18, 39, .82);
+            --panel2: rgba(30, 24, 54, .72);
+            --border: rgba(177, 142, 255, .15);
+            --muted: #9992b4;
+            --text: #f7f3ff;
+            --purple: #a56cff;
+            --pink: #ec75d9;
+            --blue: #62a8ff;
+            --green: #55e4b1;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--text);
+            background:
+                    radial-gradient(ellipse at 15% 0%, rgba(117, 55, 210, .2), transparent 36%),
+                    radial-gradient(ellipse at 95% 30%, rgba(65, 90, 220, .13), transparent 32%),
+                    var(--bg);
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: .18;
+            background-image: radial-gradient(rgba(255,255,255,.4) .6px, transparent .6px);
+            background-size: 28px 28px;
+        }
+
+        a { color: inherit; text-decoration: none; }
+        button, input, select { font: inherit; }
+
+        .app {
+            position: relative;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 245px;
+            padding: 27px 17px;
+            border-right: 1px solid var(--border);
+            background: rgba(10, 8, 20, .88);
+            position: fixed;
+            inset: 0 auto 0 0;
+            z-index: 5;
+            backdrop-filter: blur(22px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 3px 10px 34px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 23px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #a56cff, #e76bd8);
+            box-shadow: 0 0 25px #a56cff55;
+            font-size: 20px;
+        }
+
+        .nav-label {
+            color: #766e91;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            padding: 10px 12px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 12px 13px;
+            margin: 4px 0;
+            color: #aaa3c1;
+            border-radius: 12px;
+            font-size: 13px;
+            transition: .25s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: white;
+            background: linear-gradient(100deg, #9858e52b, #6b4bba12);
+            box-shadow: inset 0 0 0 1px #a56cff30;
+        }
+
+        .nav-icon { width: 21px; text-align: center; font-size: 16px; }
+
+        .sidebar-bottom {
+            position: absolute;
+            bottom: 22px;
+            left: 17px;
+            right: 17px;
+        }
+
+        .upgrade {
+            padding: 17px;
+            border: 1px solid #a56cff35;
+            border-radius: 17px;
+            background: linear-gradient(145deg, #6d3caa30, #25204766);
+        }
+
+        .upgrade strong { display: block; font-size: 13px; }
+        .upgrade p { color: var(--muted); font-size: 11px; line-height: 1.6; }
+
+        .main {
+            width: calc(100% - 245px);
+            margin-left: 245px;
+            padding: 30px 4.2%;
+            max-width: 1700px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 34px;
+        }
+
+        .breadcrumb { color: var(--muted); font-size: 12px; }
+        .breadcrumb span { color: var(--purple); }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            color: #d8d1eb;
+            font-size: 12px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a56cff, #e76bd8);
+            font-weight: 800;
+        }
+
+        .heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            margin: 0;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(29px, 4vw, 42px);
+            letter-spacing: -1.6px;
+        }
+
+        .gradient {
+            background: linear-gradient(90deg, #b68aff, #ed83d9, #75b8ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 9px;
+        }
+
+        .button {
+            border: 1px solid var(--border);
+            color: white;
+            background: #ffffff09;
+            border-radius: 11px;
+            padding: 11px 16px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            transition: .2s;
+        }
+
+        .button:hover {
+            border-color: var(--purple);
+            background: #a56cff20;
+            transform: translateY(-2px);
+        }
+
+        .button.primary {
+            border: 0;
+            background: linear-gradient(110deg, #9255e8, #c05edc);
+            box-shadow: 0 6px 25px #9d5ae83d;
+        }
+
+        .storage-hero {
+            position: relative;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1.2fr .8fr;
+            gap: 30px;
+            padding: 29px;
+            border: 1px solid #a56cff35;
+            border-radius: 22px;
+            background: linear-gradient(115deg, #211638e8, #17152ee8 65%, #20204b);
+            box-shadow: 0 15px 55px #00000028;
+        }
+
+        .storage-hero::after {
+            content: "";
+            position: absolute;
+            width: 310px;
+            height: 310px;
+            right: -110px;
+            top: -170px;
+            border-radius: 50%;
+            background: #a56cff;
+            filter: blur(100px);
+            opacity: .19;
+        }
+
+        .hero-label {
+            color: #b4a9ce;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .storage-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 39px;
+            font-weight: 700;
+            margin: 13px 0 5px;
+        }
+
+        .storage-number small {
+            color: #a69cbb;
+            font-size: 17px;
+            font-weight: 500;
+        }
+
+        .hero-note { color: var(--muted); font-size: 12px; }
+
+        .progress-track {
+            height: 12px;
+            background: #ffffff12;
+            border-radius: 30px;
+            margin: 23px 0 13px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0;
+            height: 100%;
+            border-radius: 30px;
+            background: linear-gradient(90deg, #9255e8, #df70db, #6cafff);
+            box-shadow: 0 0 20px #ad6cff88;
+            animation: fillbar 1.4s ease forwards;
+        }
+
+        @keyframes fillbar { to { width: 42%; } }
+
+        .progress-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #b4accb;
+            font-size: 11px;
+        }
+
+        .storage-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            min-height: 190px;
+        }
+
+        .ring {
+            width: 170px;
+            height: 170px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: conic-gradient(#a56cff 0 25%, #e477d6 25% 34%, #62a8ff 34% 42%, #ffffff12 42% 100%);
+            box-shadow: 0 0 35px #a56cff22;
+            animation: ringIn 1.1s ease both;
+        }
+
+        @keyframes ringIn {
+            from { transform: scale(.8) rotate(-40deg); opacity: .3; }
+            to { transform: scale(1) rotate(0); opacity: 1; }
+        }
+
+        .ring-inner {
+            width: 135px;
+            height: 135px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #1b1731;
+        }
+
+        .ring-inner strong { font-size: 28px; font-family: 'Space Grotesk'; }
+        .ring-inner span { color: var(--muted); font-size: 10px; }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 20px 0 29px;
+        }
+
+        .stat-card {
+            padding: 18px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: var(--panel);
+            transition: .25s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: #a56cff65;
+            box-shadow: 0 12px 30px #00000030;
+        }
+
+        .stat-top { display: flex; justify-content: space-between; }
+        .stat-icon {
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            background: #a56cff20;
+            font-size: 17px;
+        }
+
+        .stat-card strong {
+            display: block;
+            margin-top: 15px;
+            font-family: 'Space Grotesk';
+            font-size: 23px;
+        }
+
+        .stat-card p { color: var(--muted); font-size: 11px; margin: 5px 0 0; }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin: 29px 0 15px;
+        }
+
+        h2 {
+            font-family: 'Space Grotesk';
+            font-size: 19px;
+            margin: 0;
+        }
+
+        .section-title p { color: var(--muted); font-size: 11px; margin: 5px 0 0; }
+
+        .folders {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .folder {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 17px;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            background: var(--panel);
+            transition: .25s;
+        }
+
+        .folder:hover { transform: translateY(-3px); border-color: #a56cff66; }
+
+        .folder-icon {
+            width: 43px;
+            height: 43px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            font-size: 21px;
+            background: #a56cff20;
+        }
+
+        .folder strong { font-size: 13px; }
+        .folder small { display: block; color: var(--muted); font-size: 10px; margin-top: 5px; }
+
+        .library {
+            margin-top: 29px;
+            padding: 21px;
+            border: 1px solid var(--border);
+            border-radius: 19px;
+            background: var(--panel);
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 19px 0;
+        }
+
+        .search {
+            flex: 1;
+            min-width: 180px;
+            max-width: 330px;
+            padding: 11px 13px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            outline: none;
+            background: #ffffff08;
+            color: white;
+            font-size: 12px;
+        }
+
+        .search:focus { border-color: var(--purple); }
+
+        .filters { display: flex; gap: 7px; flex-wrap: wrap; }
+
+        .filter {
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            color: #b9b1ce;
+            background: transparent;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .filter.active, .filter:hover {
+            color: white;
+            background: #a56cff25;
+            border-color: #a56cff77;
+        }
+
+        .sort {
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            color: white;
+            background: #171329;
+            font-size: 11px;
+            outline: none;
+        }
+
+        .file-list { width: 100%; border-collapse: collapse; }
+
+        .file-list th {
+            padding: 12px 10px;
+            text-align: left;
+            color: #827a9c;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .file-list td {
+            padding: 15px 10px;
+            color: #d8d1e8;
+            font-size: 11px;
+            border-bottom: 1px solid #ffffff0b;
+        }
+
+        .file-list tr:last-child td { border-bottom: 0; }
+        .file-list tbody tr:hover { background: #ffffff06; }
+
+        .file-name {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            font-weight: 700;
+            color: #f3efff;
+        }
+
+        .file-icon {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            background: #a56cff1e;
+            font-size: 16px;
+        }
+
+        .type-pill {
+            display: inline-block;
+            padding: 5px 8px;
+            border-radius: 20px;
+            background: #a56cff20;
+            color: #c4a6ff;
+            font-size: 9px;
+        }
+
+        .delete {
+            border: 0;
+            background: transparent;
+            color: #a69bbd;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .delete:hover { color: #ff7f9a; }
+
+        .empty {
+            padding: 35px 10px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .notice {
+            margin-top: 17px;
+            padding: 12px 14px;
+            border: 1px solid #a56cff25;
+            border-radius: 11px;
+            color: #aaa1c4;
+            background: #a56cff0b;
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+        .toast {
+            position: fixed;
+            right: 25px;
+            bottom: 25px;
+            padding: 13px 18px;
+            border: 1px solid #a56cff55;
+            border-radius: 12px;
+            background: #211735;
+            color: white;
+            font-size: 12px;
+            opacity: 0;
+            transform: translateY(15px);
+            pointer-events: none;
+            transition: .25s;
+            z-index: 20;
+        }
+
+        .toast.show { opacity: 1; transform: translateY(0); }
+
+        @media(max-width: 1050px) {
+            .sidebar { width: 205px; }
+            .main { margin-left: 205px; width: calc(100% - 205px); }
+            .stats { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media(max-width: 760px) {
+            .sidebar { width: 65px; padding: 20px 8px; }
+            .brand { padding: 0 5px 30px; }
+            .brand-name, .nav-label, .nav-link span:not(.nav-icon),
+            .sidebar-bottom { display: none; }
+            .nav-link { justify-content: center; padding: 13px 5px; }
+            .main { margin-left: 65px; width: calc(100% - 65px); padding: 22px 15px; }
+            .storage-hero { grid-template-columns: 1fr; }
+            .storage-visual { min-height: 160px; }
+            .folders { grid-template-columns: 1fr; }
+            .heading { align-items: flex-start; flex-direction: column; }
+            .file-list { min-width: 650px; }
+            .table-wrap { overflow-x: auto; }
+        }
+
+        @media(max-width: 460px) {
+            .stats { grid-template-columns: 1fr 1fr; gap: 9px; }
+            .stat-card { padding: 13px; }
+            .storage-number { font-size: 31px; }
+            .library { padding: 13px; }
+            .profile span { display: none; }
+        }
+    </style>
+</head>
+
+<body>
+<div class="app">
+
+    <aside class="sidebar">
+        <a class="brand" th:href="@{/}">
+            <div class="brand-icon">✦</div>
+            <span class="brand-name">VYORA</span>
+        </a>
+
+        <div class="nav-label">WORKSPACE</div>
+        <a class="nav-link" th:href="@{/}"><span class="nav-icon">⌂</span><span>Dashboard</span></a>
+        <a class="nav-link" th:href="@{/images}"><span class="nav-icon">✧</span><span>AI Images</span></a>
+        <a class="nav-link" th:href="@{/videos}"><span class="nav-icon">▷</span><span>AI Videos</span></a>
+        <a class="nav-link" th:href="@{/creations}"><span class="nav-icon">▦</span><span>My Creations</span></a>
+
+        <div class="nav-label">LIBRARY</div>
+        <a class="nav-link active" th:href="@{/storage}"><span class="nav-icon">▤</span><span>Storage</span></a>
+        <a class="nav-link" th:href="@{/favorites}"><span class="nav-icon">♡</span><span>Favorites</span></a>
+        <a class="nav-link" th:href="@{/history}"><span class="nav-icon">◷</span><span>History</span></a>
+
+        <div class="nav-label">PREFERENCES</div>
+        <a class="nav-link" th:href="@{/analytics}"><span class="nav-icon">⌁</span><span>Analytics</span></a>
+        <a class="nav-link" th:href="@{/settings}"><span class="nav-icon">⚙</span><span>Settings</span></a>
+
+        <div class="sidebar-bottom">
+            <div class="upgrade">
+                <strong>✦ VYORA SPACE</strong>
+                <p>Your creative universe, organized in one place.</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main">
+
+        <div class="topbar">
+            <div class="breadcrumb">Workspace / <span>Storage</span></div>
+            <div class="profile">
+                <div class="avatar">V</div>
+                <span>Creative Workspace</span>
+            </div>
+        </div>
+
+        <div class="heading">
+            <div>
+                <h1>Storage <span class="gradient">Management.</span></h1>
+                <div class="subtitle">Your creative files, organized beautifully.</div>
+            </div>
+            <a class="button primary" th:href="@{/creations}">＋ View Creations</a>
+        </div>
+
+        <section class="storage-hero">
+            <div>
+                <div class="hero-label">✦ STORAGE OVERVIEW · DEMO</div>
+                <div class="storage-number">4.2 <small>GB / 10 GB</small></div>
+                <div class="hero-note">Illustrative storage usage for the VYORA interface.</div>
+
+                <div class="progress-track">
+                    <div class="progress-fill"></div>
+                </div>
+
+                <div class="progress-meta">
+                    <span>4.2 GB used</span>
+                    <span>5.8 GB available</span>
+                </div>
+            </div>
+
+            <div class="storage-visual">
+                <div class="ring">
+                    <div class="ring-inner">
+                        <strong>42%</strong>
+                        <span>DEMO USED</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats">
+            <div class="stat-card">
+                <div class="stat-top"><span class="hero-label">IMAGE FILES</span><div class="stat-icon">▧</div></div>
+                <strong>2.4 GB</strong>
+                <p>Illustrative image storage</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-top"><span class="hero-label">VIDEO FILES</span><div class="stat-icon">▷</div></div>
+                <strong>1.5 GB</strong>
+                <p>Illustrative video storage</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-top"><span class="hero-label">OTHER FILES</span><div class="stat-icon">▤</div></div>
+                <strong>0.3 GB</strong>
+                <p>Illustrative other storage</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-top"><span class="hero-label">TOTAL FILES</span><div class="stat-icon">✧</div></div>
+                <strong id="fileCount">6</strong>
+                <p>Demo library entries</p>
+            </div>
+        </section>
+
+        <div class="section-title">
+            <div>
+                <h2>Your Collections</h2>
+                <p>Explore your creative storage categories.</p>
+            </div>
+        </div>
+
+        <section class="folders">
+            <a class="folder" th:href="@{/creations}">
+                <div class="folder-icon">🖼️</div>
+                <div><strong>Image Library</strong><small>4 demo files · 2.4 GB</small></div>
+            </a>
+            <a class="folder" th:href="@{/videos}">
+                <div class="folder-icon">🎬</div>
+                <div><strong>Video Library</strong><small>2 demo files · 1.5 GB</small></div>
+            </a>
+            <a class="folder" href="#fileLibrary">
+                <div class="folder-icon">📁</div>
+                <div><strong>Other Files</strong><small>Demo documents · 0.3 GB</small></div>
+            </a>
+        </section>
+
+        <section class="library" id="fileLibrary">
+            <div class="section-title" style="margin-top:0">
+                <div>
+                    <h2>File Library</h2>
+                    <p>Search and organize the example files shown below.</p>
+                </div>
+                <button class="button" id="clearButton">Clear demo list</button>
+            </div>
+
+            <div class="toolbar">
+                <input class="search" id="searchInput" type="search" placeholder="⌕  Search files...">
+
+                <div class="filters">
+                    <button class="filter active" data-filter="all">All</button>
+                    <button class="filter" data-filter="image">Images</button>
+                    <button class="filter" data-filter="video">Videos</button>
+                    <button class="filter" data-filter="other">Other</button>
+                </div>
+
+                <select class="sort" id="sortSelect" aria-label="Sort files">
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                    <option value="name">Name A–Z</option>
+                    <option value="size">Largest first</option>
+                </select>
+            </div>
+
+            <div class="table-wrap">
+                <table class="file-list">
+                    <thead>
+                    <tr>
+                        <th>FILE NAME</th>
+                        <th>TYPE</th>
+                        <th>SIZE</th>
+                        <th>DATE ADDED</th>
+                        <th>ACTION</th>
+                    </tr>
+                    </thead>
+                    <tbody id="fileRows">
+                    <tr data-name="nebula-dream.png" data-type="image" data-size="24" data-date="2026-11-20">
+                        <td><div class="file-name"><div class="file-icon">🖼️</div>nebula-dream.png</div></td>
+                        <td><span class="type-pill">IMAGE</span></td>
+                        <td>24 MB</td><td>20 Nov 2026</td>
+                        <td><button class="delete" title="Remove demo entry">✕</button></td>
+                    </tr>
+                    <tr data-name="future-city.mp4" data-type="video" data-size="850" data-date="2026-11-19">
+                        <td><div class="file-name"><div class="file-icon">🎬</div>future-city.mp4</div></td>
+                        <td><span class="type-pill">VIDEO</span></td>
+                        <td>850 MB</td><td>19 Nov 2026</td>
+                        <td><button class="delete" title="Remove demo entry">✕</button></td>
+                    </tr>
+                    <tr data-name="dreamscape.jpg" data-type="image" data-size="18" data-date="2026-11-17">
+                        <td><div class="file-name"><div class="file-icon">🖼️</div>dreamscape.jpg</div></td>
+                        <td><span class="type-pill">IMAGE</span></td>
+                        <td>18 MB</td><td>17 Nov 2026</td>
+                        <td><button class="delete" title="Remove demo entry">✕</button></td>
+                    </tr>
+                    <tr data-name="motion-world.mp4" data-type="video" data-size="650" data-date="2026-11-15">
+                        <td><div class="file-name"><div class="file-icon">🎬</div>motion-world.mp4</div></td>
+                        <td><span class="type-pill">VIDEO</span></td>
+                        <td>650 MB</td><td>15 Nov 2026</td>
+                        <td><button class="delete" title="Remove demo entry">✕</button></td>
+                    </tr>
+                    <tr data-name="cosmic-art.png" data-type="image" data-size="32" data-date="2026-11-12">
+                        <td><div class="file-name"><div class="file-icon">🖼️</div>cosmic-art.png</div></td>
+                        <td><span class="type-pill">IMAGE</span></td>
+                        <td>32 MB</td><td>12 Nov 2026</td>
+                        <td><button class="delete" title="Remove demo entry">✕</button></td>
+                    </tr>
+                    <tr data-name="project-notes.pdf" data-type="other" data-size="12" data-date="2026-11-10">
+                        <td><div class="file-name"><div class="file-icon">📄</div>project-notes.pdf</div></td>
+                        <td><span class="type-pill">OTHER</span></td>
+                        <td>12 MB</td><td>10 Nov 2026</td>
+                        <td><button class="delete" title="Remove demo entry">✕</button></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="empty" id="emptyState" hidden>No matching demo files found.</div>
+            </div>
+
+            <div class="notice">
+                ⚠ Demo interface: these file entries, sizes, and storage figures are illustrative only.
+                Removing an entry changes this page's demo list; it does not delete files from your computer or a server.
+                Real uploads, storage calculations, and persistent file management will be added with backend storage.
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const sortSelect = document.getElementById('sortSelect');
+    const fileRows = document.getElementById('fileRows');
+    const emptyState = document.getElementById('emptyState');
+    const fileCount = document.getElementById('fileCount');
+    const toast = document.getElementById('toast');
+
+    let activeFilter = 'all';
+
+    function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2400);
+    }
+
+    function updateCount() {
+        fileCount.textContent = fileRows.querySelectorAll('tr').length;
+    }
+
+    function renderFiles() {
+        const query = searchInput.value.toLowerCase().trim();
+        const rows = [...fileRows.querySelectorAll('tr')];
+
+        rows.sort((a, b) => {
+            const mode = sortSelect.value;
+
+            if (mode === 'name') {
+                return a.dataset.name.localeCompare(b.dataset.name);
+            }
+            if (mode === 'size') {
+                return Number(b.dataset.size) - Number(a.dataset.size);
+            }
+            if (mode === 'oldest') {
+                return a.dataset.date.localeCompare(b.dataset.date);
+            }
+            return b.dataset.date.localeCompare(a.dataset.date);
+        });
+
+        rows.forEach(row => {
+            const matchesSearch = row.dataset.name.toLowerCase().includes(query);
+            const matchesFilter = activeFilter === 'all' || row.dataset.type === activeFilter;
+            row.hidden = !(matchesSearch && matchesFilter);
+            fileRows.appendChild(row);
+        });
+
+        emptyState.hidden = rows.some(row => !row.hidden);
+    }
+
+    searchInput.addEventListener('input', renderFiles);
+    sortSelect.addEventListener('change', renderFiles);
+
+    document.querySelectorAll('.filter').forEach(button => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('.filter').forEach(item => item.classList.remove('active'));
+            button.classList.add('active');
+            activeFilter = button.dataset.filter;
+            renderFiles();
+        });
+    });
+
+    fileRows.addEventListener('click', event => {
+        const button = event.target.closest('.delete');
+        if (!button) return;
+
+        const row = button.closest('tr');
+        const name = row.dataset.name;
+
+        if (confirm('Remove "' + name + '" from this demo list?')) {
+            row.remove();
+            updateCount();
+            renderFiles();
+            showToast('Demo entry removed from the list.');
+        }
+    });
+
+    document.getElementById('clearButton').addEventListener('click', () => {
+        if (!fileRows.querySelector('tr')) {
+            showToast('The demo list is already empty.');
+            return;
+        }
+
+        if (confirm('Clear all example entries from this page?')) {
+            fileRows.innerHTML = '';
+            updateCount();
+            renderFiles();
+            showToast('Demo list cleared.');
+        }
+    });
+
+    updateCount();
+    renderFiles();
+</script>
+</body>
+</html>
