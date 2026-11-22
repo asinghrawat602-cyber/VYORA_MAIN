@@ -1,0 +1,929 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Creations | VYORA AI</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg:#080711;
+            --panel:rgba(25,20,43,.88);
+            --border:rgba(183,147,255,.15);
+            --purple:#a477ff;
+            --pink:#e47bff;
+            --blue:#6f9bff;
+            --text:#f7f3ff;
+            --muted:#9992b2;
+        }
+
+        * { box-sizing:border-box; }
+
+        body {
+            margin:0;
+            min-height:100vh;
+            color:var(--text);
+            background:
+                    radial-gradient(ellipse at 75% 0%,rgba(119,57,207,.17),transparent 40%),
+                    radial-gradient(ellipse at 5% 90%,rgba(64,75,190,.13),transparent 35%),
+                    var(--bg);
+            font-family:'DM Sans',sans-serif;
+            overflow-x:hidden;
+        }
+
+        body::before {
+            content:"";
+            position:fixed;
+            inset:0;
+            pointer-events:none;
+            opacity:.15;
+            background-image:radial-gradient(rgba(255,255,255,.24) .7px,transparent .7px);
+            background-size:25px 25px;
+        }
+
+        .glow {
+            position:fixed;
+            width:360px;height:360px;
+            border-radius:50%;
+            filter:blur(110px);
+            opacity:.2;
+            pointer-events:none;
+            animation:float 12s ease-in-out infinite alternate;
+        }
+        .glow.one { background:#853dff;top:5%;left:25%; }
+        .glow.two { background:#345bff;right:-10%;bottom:5%;animation-delay:-5s; }
+
+        @keyframes float {
+            to { transform:translate(60px,35px) scale(1.2); }
+        }
+
+        .app { position:relative;display:flex;min-height:100vh; }
+
+        .sidebar {
+            width:248px;
+            flex-shrink:0;
+            padding:27px 17px;
+            border-right:1px solid var(--border);
+            background:rgba(9,8,19,.87);
+            backdrop-filter:blur(24px);
+        }
+
+        .brand {
+            display:flex;
+            align-items:center;
+            gap:11px;
+            padding:0 10px 30px;
+        }
+
+        .brand-icon {
+            width:39px;height:39px;
+            display:grid;place-items:center;
+            border-radius:13px;
+            font-size:21px;
+            background:linear-gradient(135deg,#9d68ff,#e16aff);
+            box-shadow:0 0 27px rgba(164,103,255,.4);
+        }
+
+        .brand-name {
+            font:700 20px 'Space Grotesk',sans-serif;
+            letter-spacing:2px;
+        }
+        .brand-name span { color:#b68aff; }
+
+        .nav-label {
+            padding:15px 12px 9px;
+            color:#77718f;
+            font-size:10px;
+            font-weight:800;
+            letter-spacing:1.8px;
+        }
+
+        .nav-link {
+            display:flex;
+            align-items:center;
+            gap:12px;
+            padding:11px 12px;
+            margin:3px 0;
+            border-radius:11px;
+            color:#aaa3bf;
+            text-decoration:none;
+            font-size:13px;
+            transition:.25s;
+        }
+        .nav-link:hover {
+            color:white;
+            background:rgba(151,107,255,.1);
+            transform:translateX(3px);
+        }
+        .nav-link.active {
+            color:white;
+            border:1px solid rgba(176,129,255,.2);
+            background:linear-gradient(100deg,rgba(144,88,255,.23),rgba(185,91,255,.08));
+            box-shadow:inset 3px 0 #b58aff;
+        }
+        .nav-icon { width:20px;text-align:center;font-size:16px; }
+
+        .sidebar-bottom {
+            margin:35px 4px 0;
+            padding:16px;
+            border:1px solid var(--border);
+            border-radius:15px;
+            background:linear-gradient(145deg,rgba(122,75,205,.17),rgba(37,30,65,.2));
+        }
+        .sidebar-bottom strong { font-size:12px; }
+        .sidebar-bottom p {
+            color:var(--muted);
+            font-size:11px;
+            line-height:1.6;
+        }
+
+        .main { flex:1;min-width:0;padding:25px 34px 50px; }
+
+        .topbar {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:15px;
+            margin-bottom:35px;
+        }
+        .crumb { color:var(--muted);font-size:12px; }
+        .crumb b { color:#e6d8ff;font-weight:600; }
+
+        .top-actions { display:flex;align-items:center;gap:12px; }
+        .status-pill {
+            padding:8px 12px;
+            border:1px solid rgba(120,224,177,.18);
+            border-radius:30px;
+            color:#8de5bd;
+            background:rgba(59,190,133,.07);
+            font-size:11px;
+        }
+        .avatar {
+            width:36px;height:36px;
+            display:grid;place-items:center;
+            border-radius:12px;
+            font-weight:800;
+            background:linear-gradient(135deg,#8d65f7,#d76be9);
+        }
+
+        .eyebrow {
+            color:#c39cff;
+            font-size:10px;
+            font-weight:800;
+            letter-spacing:2.5px;
+        }
+        h1 {
+            font:700 clamp(28px,4vw,39px) 'Space Grotesk',sans-serif;
+            letter-spacing:-1.5px;
+            margin:9px 0 8px;
+        }
+        .gradient-text {
+            background:linear-gradient(100deg,#c7a4ff,#f19aff,#8caaff);
+            -webkit-background-clip:text;
+            background-clip:text;
+            color:transparent;
+        }
+        .subtitle {
+            color:var(--muted);
+            font-size:13px;
+            line-height:1.7;
+            margin:0;
+        }
+        .heading-row {
+            display:flex;
+            justify-content:space-between;
+            align-items:end;
+            gap:18px;
+            margin-bottom:26px;
+        }
+        .primary-button {
+            padding:12px 17px;
+            border:0;
+            border-radius:11px;
+            color:white;
+            background:linear-gradient(100deg,#8552ee,#bd64e9);
+            box-shadow:0 7px 24px rgba(143,82,238,.24);
+            font:700 11px 'DM Sans',sans-serif;
+            text-decoration:none;
+            white-space:nowrap;
+            transition:.2s;
+        }
+        .primary-button:hover {
+            transform:translateY(-2px);
+            box-shadow:0 10px 28px rgba(143,82,238,.4);
+        }
+
+        .stats {
+            display:grid;
+            grid-template-columns:repeat(4,1fr);
+            gap:13px;
+            margin-bottom:22px;
+        }
+        .stat-card {
+            padding:17px;
+            border:1px solid var(--border);
+            border-radius:15px;
+            background:linear-gradient(145deg,rgba(28,23,47,.9),rgba(15,13,29,.82));
+        }
+        .stat-top {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:12px;
+        }
+        .stat-icon {
+            width:33px;height:33px;
+            display:grid;place-items:center;
+            border-radius:10px;
+            background:rgba(155,106,255,.14);
+            font-size:15px;
+        }
+        .stat-label { color:var(--muted);font-size:10px; }
+        .stat-value {
+            font:700 24px 'Space Grotesk',sans-serif;
+            margin-top:3px;
+        }
+        .stat-note { color:#7d7697;font-size:9px;margin-top:4px; }
+
+        .library-panel {
+            padding:21px;
+            border:1px solid var(--border);
+            border-radius:18px;
+            background:linear-gradient(145deg,rgba(28,23,47,.9),rgba(15,13,29,.86));
+            box-shadow:0 18px 55px rgba(0,0,0,.18);
+        }
+
+        .library-header {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:15px;
+            margin-bottom:18px;
+        }
+        .library-header h2 {
+            font:600 17px 'Space Grotesk',sans-serif;
+            margin:0;
+        }
+        .demo-tag {
+            color:#c6a9ff;
+            font-size:9px;
+            padding:6px 9px;
+            border:1px solid rgba(176,129,255,.2);
+            border-radius:30px;
+            background:rgba(145,91,255,.08);
+        }
+
+        .toolbar {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:12px;
+            flex-wrap:wrap;
+            margin-bottom:19px;
+        }
+
+        .tabs {
+            display:flex;
+            gap:5px;
+            padding:4px;
+            border:1px solid var(--border);
+            border-radius:11px;
+            background:rgba(8,7,18,.5);
+        }
+        .tab {
+            padding:9px 14px;
+            border:0;
+            border-radius:8px;
+            color:#aaa3bf;
+            background:transparent;
+            font:600 11px 'DM Sans',sans-serif;
+            cursor:pointer;
+            transition:.2s;
+        }
+        .tab.active {
+            color:white;
+            background:rgba(151,102,255,.24);
+            box-shadow:0 2px 12px rgba(125,75,220,.12);
+        }
+
+        .filters {
+            display:flex;
+            gap:9px;
+            flex-wrap:wrap;
+        }
+
+        .search-wrap { position:relative; }
+        .search-wrap span {
+            position:absolute;
+            left:12px;top:10px;
+            color:#817994;
+            font-size:14px;
+        }
+        .search-input, .sort-select {
+            height:36px;
+            border:1px solid var(--border);
+            border-radius:9px;
+            outline:none;
+            color:#eee8ff;
+            background:rgba(8,7,18,.6);
+            font:11px 'DM Sans',sans-serif;
+        }
+        .search-input {
+            width:190px;
+            padding:0 12px 0 34px;
+        }
+        .sort-select { padding:0 10px; }
+        .search-input:focus,.sort-select:focus {
+            border-color:#a77aff;
+            box-shadow:0 0 0 3px rgba(167,122,255,.1);
+        }
+
+        .gallery {
+            display:grid;
+            grid-template-columns:repeat(3,minmax(0,1fr));
+            gap:15px;
+        }
+
+        .creation-card {
+            min-width:0;
+            overflow:hidden;
+            border:1px solid rgba(183,147,255,.13);
+            border-radius:14px;
+            background:rgba(9,8,20,.65);
+            transition:.25s;
+        }
+        .creation-card:hover {
+            transform:translateY(-4px);
+            border-color:rgba(183,147,255,.38);
+            box-shadow:0 14px 30px rgba(0,0,0,.2);
+        }
+
+        .artwork {
+            position:relative;
+            height:170px;
+            display:grid;
+            place-items:center;
+            overflow:hidden;
+            isolation:isolate;
+        }
+        .artwork::before {
+            content:"";
+            position:absolute;
+            inset:-30%;
+            z-index:-1;
+            background:radial-gradient(circle,rgba(255,255,255,.23),transparent 35%);
+            animation:artGlow 8s ease-in-out infinite alternate;
+        }
+        @keyframes artGlow {
+            to { transform:translate(20px,-15px) scale(1.3); }
+        }
+
+        .artwork .art-icon {
+            font-size:47px;
+            filter:drop-shadow(0 5px 20px rgba(0,0,0,.35));
+        }
+        .artwork .art-title {
+            position:absolute;
+            left:12px;
+            bottom:11px;
+            font:700 12px 'Space Grotesk',sans-serif;
+            text-shadow:0 2px 8px rgba(0,0,0,.5);
+        }
+
+        .art-1 { background:linear-gradient(140deg,#24124f,#7c3da8,#e29ab5); }
+        .art-2 { background:linear-gradient(140deg,#102b4d,#276b9a,#a5d8eb); }
+        .art-3 { background:linear-gradient(140deg,#27184f,#6849b5,#e5a4db); }
+        .art-4 { background:linear-gradient(140deg,#142f37,#367d7b,#b7d1b0); }
+        .art-5 { background:linear-gradient(140deg,#401b3e,#b34d84,#edb28f); }
+        .art-6 { background:linear-gradient(140deg,#172143,#4c5fb1,#9bb7e9); }
+
+        .card-content { padding:13px; }
+        .card-top {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:8px;
+        }
+        .card-title {
+            overflow:hidden;
+            color:#f1eaff;
+            font-size:12px;
+            font-weight:700;
+            white-space:nowrap;
+            text-overflow:ellipsis;
+        }
+        .type-label {
+            flex-shrink:0;
+            padding:5px 7px;
+            border-radius:6px;
+            color:#c6aaff;
+            background:rgba(150,105,255,.12);
+            font-size:9px;
+        }
+        .card-bottom {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-top:11px;
+            color:#847c9d;
+            font-size:10px;
+        }
+        .card-actions { display:flex;gap:6px; }
+        .icon-button {
+            width:27px;height:27px;
+            display:grid;place-items:center;
+            border:1px solid rgba(183,147,255,.15);
+            border-radius:8px;
+            color:#aaa0c0;
+            background:rgba(28,22,48,.8);
+            cursor:pointer;
+            transition:.2s;
+        }
+        .icon-button:hover {
+            color:white;
+            border-color:#a477ff;
+            background:rgba(145,91,255,.2);
+        }
+        .icon-button.favorite { color:#ff85bd; }
+
+        .empty-state {
+            display:none;
+            grid-column:1/-1;
+            padding:48px 20px;
+            border:1px dashed rgba(183,147,255,.23);
+            border-radius:14px;
+            text-align:center;
+        }
+        .empty-state.show { display:block; }
+        .empty-icon {
+            width:58px;height:58px;
+            display:grid;place-items:center;
+            margin:0 auto 13px;
+            border-radius:18px;
+            background:rgba(145,91,255,.13);
+            font-size:24px;
+        }
+        .empty-state h3 {
+            font:600 16px 'Space Grotesk',sans-serif;
+            margin:0 0 7px;
+        }
+        .empty-state p {
+            max-width:340px;
+            margin:0 auto;
+            color:var(--muted);
+            font-size:11px;
+            line-height:1.7;
+        }
+        .empty-state a {
+            display:inline-block;
+            margin-top:15px;
+            color:#c5a4ff;
+            text-decoration:none;
+            font-size:11px;
+        }
+
+        .notice {
+            display:none;
+            margin-top:16px;
+            padding:12px 14px;
+            border:1px solid rgba(120,224,177,.2);
+            border-radius:10px;
+            color:#a8eacb;
+            background:rgba(59,190,133,.07);
+            font-size:11px;
+        }
+        .notice.show { display:block; }
+
+        .footer-note {
+            margin-top:17px;
+            color:#77718f;
+            font-size:10px;
+            line-height:1.6;
+        }
+
+        @media(max-width:1150px) {
+            .sidebar { width:215px; }
+            .main { padding:23px; }
+            .gallery { grid-template-columns:repeat(2,minmax(0,1fr)); }
+            .stats { grid-template-columns:repeat(2,1fr); }
+        }
+        @media(max-width:700px) {
+            .app { display:block; }
+            .sidebar {
+                width:100%;
+                padding:15px;
+                border-right:0;
+                border-bottom:1px solid var(--border);
+            }
+            .brand { padding-bottom:13px; }
+            .nav-label,.sidebar-bottom { display:none; }
+            .sidebar nav {
+                display:flex;
+                gap:5px;
+                overflow-x:auto;
+                padding-bottom:5px;
+            }
+            .nav-link { flex-shrink:0;padding:9px 11px; }
+            .main { padding:20px 14px 35px; }
+            .topbar { margin-bottom:25px; }
+            .heading-row { align-items:flex-start;flex-direction:column; }
+            .gallery { grid-template-columns:repeat(2,minmax(0,1fr));gap:10px; }
+            .artwork { height:130px; }
+            .library-panel { padding:14px; }
+            .toolbar { align-items:flex-start; }
+            .filters { width:100%; }
+            .search-wrap { flex:1; }
+            .search-input { width:100%; }
+        }
+        @media(max-width:400px) {
+            .gallery { grid-template-columns:1fr; }
+            .stats { gap:8px; }
+            .stat-card { padding:12px; }
+        }
+    </style>
+</head>
+
+<body>
+<div class="glow one"></div>
+<div class="glow two"></div>
+
+<div class="app">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">✦</div>
+            <div class="brand-name">VYORA<span>.</span></div>
+        </div>
+
+        <nav>
+            <div class="nav-label">WORKSPACE</div>
+            <a class="nav-link" href="/"><span class="nav-icon">⌂</span> Dashboard</a>
+            <a class="nav-link" href="/images"><span class="nav-icon">✧</span> AI Images</a>
+            <a class="nav-link" href="/videos"><span class="nav-icon">▷</span> AI Videos</a>
+            <a class="nav-link active" href="/creations"><span class="nav-icon">▧</span> My Creations</a>
+
+            <div class="nav-label">LIBRARY</div>
+            <a class="nav-link" href="/storage"><span class="nav-icon">▤</span> Storage</a>
+            <a class="nav-link" href="/favorites"><span class="nav-icon">♡</span> Favorites</a>
+            <a class="nav-link" href="/history"><span class="nav-icon">◷</span> History</a>
+
+            <div class="nav-label">ACCOUNT</div>
+            <a class="nav-link" href="/analytics"><span class="nav-icon">▥</span> Analytics</a>
+            <a class="nav-link" href="/settings"><span class="nav-icon">⚙</span> Settings</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <strong>✦ Your creative universe</strong>
+            <p>Every project, one beautiful place. Your visual library starts here.</p>
+        </div>
+    </aside>
+
+    <main class="main">
+
+        <header class="topbar">
+            <div class="crumb">Workspace &nbsp;/&nbsp; <b>My Creations</b></div>
+            <div class="top-actions">
+                <div class="status-pill">● Library preview</div>
+                <div class="avatar">V</div>
+            </div>
+        </header>
+
+        <section class="heading-row">
+            <div>
+                <div class="eyebrow">✦ YOUR CREATIVE UNIVERSE</div>
+                <h1>My <span class="gradient-text">Creations</span></h1>
+                <p class="subtitle">
+                    Your visual ideas, organized in one creative library.
+                    Explore, search and manage your projects.
+                </p>
+            </div>
+            <a class="primary-button" href="/images">✦ Create New</a>
+        </section>
+
+        <section class="stats">
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-label">Total projects</span>
+                    <span class="stat-icon">▧</span>
+                </div>
+                <div class="stat-value" id="totalCount">6</div>
+                <div class="stat-note">Demo gallery items</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-label">Images</span>
+                    <span class="stat-icon">✧</span>
+                </div>
+                <div class="stat-value" id="imageCount">4</div>
+                <div class="stat-note">Sample image projects</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-label">Videos</span>
+                    <span class="stat-icon">▷</span>
+                </div>
+                <div class="stat-value" id="videoCount">2</div>
+                <div class="stat-note">Sample video projects</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-label">Favorites</span>
+                    <span class="stat-icon">♡</span>
+                </div>
+                <div class="stat-value" id="favoriteCount">0</div>
+                <div class="stat-note">Saved in this demo session</div>
+            </div>
+        </section>
+
+        <section class="library-panel">
+
+            <div class="library-header">
+                <h2>Creative Library</h2>
+                <span class="demo-tag">DESIGN DEMO CONTENT</span>
+            </div>
+
+            <div class="toolbar">
+                <div class="tabs" id="tabs">
+                    <button class="tab active" type="button" data-filter="all">All</button>
+                    <button class="tab" type="button" data-filter="image">Images</button>
+                    <button class="tab" type="button" data-filter="video">Videos</button>
+                    <button class="tab" type="button" data-filter="favorite">♥ Favorites</button>
+                </div>
+
+                <div class="filters">
+                    <div class="search-wrap">
+                        <span>⌕</span>
+                        <input class="search-input" id="searchInput"
+                               type="search" placeholder="Search projects...">
+                    </div>
+
+                    <select class="sort-select" id="sortSelect" aria-label="Sort projects">
+                        <option value="newest">Newest first</option>
+                        <option value="oldest">Oldest first</option>
+                        <option value="az">Name A–Z</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="gallery" id="gallery">
+
+                <article class="creation-card" data-type="image" data-name="Violet Dreamscape" data-date="6">
+                    <div class="artwork art-1">
+                        <span class="art-icon">🌌</span>
+                        <span class="art-title">Violet Dreamscape</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-top">
+                            <span class="card-title">Violet Dreamscape</span>
+                            <span class="type-label">IMAGE</span>
+                        </div>
+                        <div class="card-bottom">
+                            <span>Demo project · Sample</span>
+                            <div class="card-actions">
+                                <button class="icon-button favorite-button" type="button" aria-label="Add to favorites" title="Favorite">♡</button>
+                                <button class="icon-button details-button" type="button" aria-label="View project details" title="Details">ⓘ</button>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="creation-card" data-type="video" data-name="Future in Motion" data-date="5">
+                    <div class="artwork art-2">
+                        <span class="art-icon">▶</span>
+                        <span class="art-title">Future in Motion</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-top">
+                            <span class="card-title">Future in Motion</span>
+                            <span class="type-label">VIDEO</span>
+                        </div>
+                        <div class="card-bottom">
+                            <span>Demo project · Sample</span>
+                            <div class="card-actions">
+                                <button class="icon-button favorite-button" type="button" aria-label="Add to favorites" title="Favorite">♡</button>
+                                <button class="icon-button details-button" type="button" aria-label="View project details" title="Details">ⓘ</button>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="creation-card" data-type="image" data-name="Crystal Universe" data-date="4">
+                    <div class="artwork art-3">
+                        <span class="art-icon">💎</span>
+                        <span class="art-title">Crystal Universe</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-top">
+                            <span class="card-title">Crystal Universe</span>
+                            <span class="type-label">IMAGE</span>
+                        </div>
+                        <div class="card-bottom">
+                            <span>Demo project · Sample</span>
+                            <div class="card-actions">
+                                <button class="icon-button favorite-button" type="button" aria-label="Add to favorites" title="Favorite">♡</button>
+                                <button class="icon-button details-button" type="button" aria-label="View project details" title="Details">ⓘ</button>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="creation-card" data-type="image" data-name="Ocean of Dreams" data-date="3">
+                    <div class="artwork art-4">
+                        <span class="art-icon">🌊</span>
+                        <span class="art-title">Ocean of Dreams</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-top">
+                            <span class="card-title">Ocean of Dreams</span>
+                            <span class="type-label">IMAGE</span>
+                        </div>
+                        <div class="card-bottom">
+                            <span>Demo project · Sample</span>
+                            <div class="card-actions">
+                                <button class="icon-button favorite-button" type="button" aria-label="Add to favorites" title="Favorite">♡</button>
+                                <button class="icon-button details-button" type="button" aria-label="View project details" title="Details">ⓘ</button>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="creation-card" data-type="video" data-name="Neon City Journey" data-date="2">
+                    <div class="artwork art-5">
+                        <span class="art-icon">▷</span>
+                        <span class="art-title">Neon City Journey</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-top">
+                            <span class="card-title">Neon City Journey</span>
+                            <span class="type-label">VIDEO</span>
+                        </div>
+                        <div class="card-bottom">
+                            <span>Demo project · Sample</span>
+                            <div class="card-actions">
+                                <button class="icon-button favorite-button" type="button" aria-label="Add to favorites" title="Favorite">♡</button>
+                                <button class="icon-button details-button" type="button" aria-label="View project details" title="Details">ⓘ</button>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="creation-card" data-type="image" data-name="Blue Horizon" data-date="1">
+                    <div class="artwork art-6">
+                        <span class="art-icon">✨</span>
+                        <span class="art-title">Blue Horizon</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-top">
+                            <span class="card-title">Blue Horizon</span>
+                            <span class="type-label">IMAGE</span>
+                        </div>
+                        <div class="card-bottom">
+                            <span>Demo project · Sample</span>
+                            <div class="card-actions">
+                                <button class="icon-button favorite-button" type="button" aria-label="Add to favorites" title="Favorite">♡</button>
+                                <button class="icon-button details-button" type="button" aria-label="View project details" title="Details">ⓘ</button>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">⌕</div>
+                    <h3>No projects found</h3>
+                    <p>Try another search or switch your filter to explore the library.</p>
+                    <a href="/images">Create your first image →</a>
+                </div>
+
+            </div>
+
+            <div class="notice" id="notice" role="status" aria-live="polite"></div>
+
+            <p class="footer-note">
+                These gallery cards are sample design content. Real creations, file previews and saved favorites will be connected to the database in a later milestone.
+            </p>
+
+        </section>
+
+    </main>
+</div>
+
+<script>
+    const cards = [...document.querySelectorAll(".creation-card")];
+    const tabs = [...document.querySelectorAll(".tab")];
+    const searchInput = document.getElementById("searchInput");
+    const sortSelect = document.getElementById("sortSelect");
+    const emptyState = document.getElementById("emptyState");
+    const notice = document.getElementById("notice");
+
+    let activeFilter = "all";
+    let favorites = new Set();
+
+    function updateStats() {
+        document.getElementById("totalCount").textContent = cards.length;
+        document.getElementById("imageCount").textContent =
+            cards.filter(card => card.dataset.type === "image").length;
+        document.getElementById("videoCount").textContent =
+            cards.filter(card => card.dataset.type === "video").length;
+        document.getElementById("favoriteCount").textContent = favorites.size;
+    }
+
+    function showNotice(message) {
+        notice.textContent = message;
+        notice.classList.add("show");
+    }
+
+    function renderGallery() {
+        const query = searchInput.value.trim().toLowerCase();
+
+        const sortedCards = [...cards];
+
+        if (sortSelect.value === "newest") {
+            sortedCards.sort((a,b) => Number(b.dataset.date) - Number(a.dataset.date));
+        } else if (sortSelect.value === "oldest") {
+            sortedCards.sort((a,b) => Number(a.dataset.date) - Number(b.dataset.date));
+        } else {
+            sortedCards.sort((a,b) => a.dataset.name.localeCompare(b.dataset.name));
+        }
+
+        const gallery = document.getElementById("gallery");
+        sortedCards.forEach(card => gallery.insertBefore(card, emptyState));
+
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+            const matchesSearch = card.dataset.name.toLowerCase().includes(query);
+            const isFavorite = favorites.has(card);
+
+            let matchesFilter = true;
+
+            if (activeFilter === "image" || activeFilter === "video") {
+                matchesFilter = card.dataset.type === activeFilter;
+            } else if (activeFilter === "favorite") {
+                matchesFilter = isFavorite;
+            }
+
+            const visible = matchesSearch && matchesFilter;
+            card.style.display = visible ? "" : "none";
+
+            if (visible) visibleCount++;
+        });
+
+        emptyState.classList.toggle("show", visibleCount === 0);
+    }
+
+    tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+            tabs.forEach(item => item.classList.remove("active"));
+            tab.classList.add("active");
+            activeFilter = tab.dataset.filter;
+            renderGallery();
+        });
+    });
+
+    searchInput.addEventListener("input", renderGallery);
+    sortSelect.addEventListener("change", renderGallery);
+
+    cards.forEach(card => {
+        const favoriteButton = card.querySelector(".favorite-button");
+
+        favoriteButton.addEventListener("click", () => {
+            if (favorites.has(card)) {
+                favorites.delete(card);
+                favoriteButton.textContent = "♡";
+                favoriteButton.classList.remove("favorite");
+                favoriteButton.title = "Add to favorites";
+                favoriteButton.setAttribute("aria-label", "Add to favorites");
+                showNotice(card.dataset.name + " removed from demo favorites.");
+            } else {
+                favorites.add(card);
+                favoriteButton.textContent = "♥";
+                favoriteButton.classList.add("favorite");
+                favoriteButton.title = "Remove from favorites";
+                favoriteButton.setAttribute("aria-label", "Remove from favorites");
+                showNotice(card.dataset.name + " added to demo favorites.");
+            }
+
+            updateStats();
+            renderGallery();
+        });
+
+        card.querySelector(".details-button").addEventListener("click", () => {
+            showNotice(
+                card.dataset.name + " — " +
+                card.dataset.type.toUpperCase() +
+                " demo project. Real project details will be connected later."
+            );
+        });
+    });
+
+    updateStats();
+    renderGallery();
+</script>
+</body>
+</html>

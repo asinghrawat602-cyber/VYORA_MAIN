@@ -1,0 +1,837 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Studio | VYORA AI</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg:#080711;
+            --panel:rgba(25,20,43,.88);
+            --border:rgba(183,147,255,.15);
+            --purple:#a477ff;
+            --pink:#e47bff;
+            --blue:#6f9bff;
+            --text:#f7f3ff;
+            --muted:#9992b2;
+        }
+
+        * { box-sizing:border-box; }
+
+        body {
+            margin:0;
+            min-height:100vh;
+            color:var(--text);
+            background:
+                    radial-gradient(ellipse at 75% 0%,rgba(119,57,207,.17),transparent 40%),
+                    radial-gradient(ellipse at 5% 90%,rgba(64,75,190,.13),transparent 35%),
+                    var(--bg);
+            font-family:'DM Sans',sans-serif;
+            overflow-x:hidden;
+        }
+
+        body::before {
+            content:"";
+            position:fixed;
+            inset:0;
+            pointer-events:none;
+            opacity:.16;
+            background-image:radial-gradient(rgba(255,255,255,.25) .7px,transparent .7px);
+            background-size:25px 25px;
+        }
+
+        .glow {
+            position:fixed;
+            width:360px;
+            height:360px;
+            border-radius:50%;
+            filter:blur(110px);
+            opacity:.2;
+            pointer-events:none;
+            animation:float 12s ease-in-out infinite alternate;
+        }
+        .glow.one { background:#853dff;top:5%;left:25%; }
+        .glow.two { background:#345bff;right:-10%;bottom:5%;animation-delay:-5s; }
+
+        @keyframes float {
+            to { transform:translate(60px,35px) scale(1.2); }
+        }
+
+        .app { position:relative;display:flex;min-height:100vh; }
+
+        .sidebar {
+            width:248px;
+            flex-shrink:0;
+            padding:27px 17px;
+            border-right:1px solid var(--border);
+            background:rgba(9,8,19,.87);
+            backdrop-filter:blur(24px);
+        }
+
+        .brand {
+            display:flex;
+            align-items:center;
+            gap:11px;
+            padding:0 10px 30px;
+        }
+
+        .brand-icon {
+            width:39px;height:39px;
+            display:grid;place-items:center;
+            border-radius:13px;
+            font-size:21px;
+            background:linear-gradient(135deg,#9d68ff,#e16aff);
+            box-shadow:0 0 27px rgba(164,103,255,.4);
+        }
+
+        .brand-name {
+            font:700 20px 'Space Grotesk',sans-serif;
+            letter-spacing:2px;
+        }
+        .brand-name span { color:#b68aff; }
+
+        .nav-label {
+            padding:15px 12px 9px;
+            color:#77718f;
+            font-size:10px;
+            font-weight:800;
+            letter-spacing:1.8px;
+        }
+
+        .nav-link {
+            display:flex;
+            align-items:center;
+            gap:12px;
+            padding:11px 12px;
+            margin:3px 0;
+            border-radius:11px;
+            color:#aaa3bf;
+            text-decoration:none;
+            font-size:13px;
+            transition:.25s;
+        }
+        .nav-link:hover {
+            color:white;
+            background:rgba(151,107,255,.1);
+            transform:translateX(3px);
+        }
+        .nav-link.active {
+            color:white;
+            border:1px solid rgba(176,129,255,.2);
+            background:linear-gradient(100deg,rgba(144,88,255,.23),rgba(185,91,255,.08));
+            box-shadow:inset 3px 0 #b58aff;
+        }
+        .nav-icon { width:20px;text-align:center;font-size:16px; }
+
+        .sidebar-bottom {
+            margin:35px 4px 0;
+            padding:16px;
+            border:1px solid var(--border);
+            border-radius:15px;
+            background:linear-gradient(145deg,rgba(122,75,205,.17),rgba(37,30,65,.2));
+        }
+        .sidebar-bottom strong { font-size:12px; }
+        .sidebar-bottom p {
+            color:var(--muted);
+            font-size:11px;
+            line-height:1.6;
+        }
+
+        .main { flex:1;min-width:0;padding:25px 34px 50px; }
+
+        .topbar {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:15px;
+            margin-bottom:36px;
+        }
+        .crumb { color:var(--muted);font-size:12px; }
+        .crumb b { color:#e6d8ff;font-weight:600; }
+
+        .top-actions { display:flex;align-items:center;gap:12px; }
+
+        .status-pill {
+            padding:8px 12px;
+            border:1px solid rgba(120,224,177,.18);
+            border-radius:30px;
+            color:#8de5bd;
+            background:rgba(59,190,133,.07);
+            font-size:11px;
+        }
+
+        .avatar {
+            width:36px;height:36px;
+            display:grid;place-items:center;
+            border-radius:12px;
+            font-weight:800;
+            background:linear-gradient(135deg,#8d65f7,#d76be9);
+        }
+
+        .eyebrow {
+            color:#c39cff;
+            font-size:10px;
+            font-weight:800;
+            letter-spacing:2.5px;
+        }
+
+        h1 {
+            font:700 clamp(28px,4vw,39px) 'Space Grotesk',sans-serif;
+            letter-spacing:-1.5px;
+            margin:9px 0 8px;
+        }
+
+        .gradient-text {
+            background:linear-gradient(100deg,#c7a4ff,#f19aff,#8caaff);
+            -webkit-background-clip:text;
+            background-clip:text;
+            color:transparent;
+        }
+
+        .subtitle {
+            color:var(--muted);
+            font-size:13px;
+            line-height:1.7;
+            margin:0;
+        }
+
+        .heading-row { margin-bottom:25px; }
+
+        .workspace {
+            display:grid;
+            grid-template-columns:minmax(0,1.08fr) minmax(330px,.92fr);
+            gap:20px;
+            align-items:start;
+        }
+
+        .panel {
+            border:1px solid var(--border);
+            border-radius:19px;
+            background:linear-gradient(145deg,rgba(28,23,47,.93),rgba(15,13,29,.9));
+            box-shadow:0 18px 55px rgba(0,0,0,.2);
+            backdrop-filter:blur(20px);
+        }
+
+        .editor { padding:23px; }
+
+        .panel-heading {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:10px;
+            margin-bottom:19px;
+        }
+
+        .panel-heading h2,.preview-toolbar h2 {
+            font:600 16px 'Space Grotesk',sans-serif;
+            margin:0;
+        }
+
+        .step { color:#a99bbf;font-size:10px;letter-spacing:1px; }
+
+        .mode-switch {
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:8px;
+            padding:5px;
+            border:1px solid var(--border);
+            border-radius:13px;
+            background:rgba(8,7,18,.55);
+        }
+
+        .mode-button {
+            padding:12px 8px;
+            border:1px solid transparent;
+            border-radius:9px;
+            color:#aaa3bf;
+            background:transparent;
+            font:600 11px 'DM Sans',sans-serif;
+            cursor:pointer;
+            transition:.2s;
+        }
+        .mode-button.selected {
+            color:white;
+            border-color:rgba(176,129,255,.28);
+            background:linear-gradient(100deg,rgba(144,88,255,.27),rgba(185,91,255,.13));
+        }
+
+        .field-label {
+            display:block;
+            color:#e7def8;
+            font-size:12px;
+            font-weight:700;
+            margin:19px 0 9px;
+        }
+
+        textarea {
+            display:block;
+            width:100%;
+            min-height:145px;
+            resize:vertical;
+            padding:15px;
+            border:1px solid rgba(175,143,230,.2);
+            border-radius:13px;
+            outline:none;
+            color:white;
+            background:rgba(8,7,18,.65);
+            font:13px/1.7 'DM Sans',sans-serif;
+            transition:.2s;
+        }
+        textarea:focus,select:focus {
+            border-color:#a77aff;
+            box-shadow:0 0 0 3px rgba(167,122,255,.1);
+        }
+        textarea::placeholder { color:#706985; }
+
+        .prompt-footer {
+            display:flex;
+            justify-content:space-between;
+            gap:10px;
+            margin-top:8px;
+            color:#77718f;
+            font-size:10px;
+        }
+        .text-button {
+            border:0;
+            padding:0;
+            color:#c4a0ff;
+            background:none;
+            cursor:pointer;
+            font:inherit;
+        }
+        .text-button:hover { color:white; }
+
+        .upload-box {
+            display:none;
+            margin-top:12px;
+            padding:17px;
+            border:1px dashed rgba(176,144,226,.3);
+            border-radius:12px;
+            text-align:center;
+            background:rgba(8,7,18,.45);
+        }
+        .upload-box.show { display:block; }
+        .upload-box p { color:var(--muted);font-size:11px; }
+        .upload-box input { max-width:100%;color:#bdb3d3;font-size:11px; }
+
+        .select-grid {
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:12px;
+        }
+
+        select {
+            width:100%;
+            padding:12px;
+            border:1px solid rgba(175,143,230,.17);
+            border-radius:11px;
+            outline:none;
+            color:#eee8ff;
+            background:#151126;
+            font:12px 'DM Sans',sans-serif;
+        }
+        select option { background:#151126; }
+
+        .generate-button {
+            width:100%;
+            margin-top:23px;
+            padding:15px;
+            border:0;
+            border-radius:12px;
+            color:white;
+            background:linear-gradient(100deg,#8552ee,#bd64e9 55%,#667df5);
+            box-shadow:0 8px 28px rgba(143,82,238,.27);
+            font:700 13px 'DM Sans',sans-serif;
+            cursor:pointer;
+            transition:.25s;
+        }
+        .generate-button:hover {
+            transform:translateY(-2px);
+            box-shadow:0 12px 34px rgba(143,82,238,.4);
+        }
+
+        .notice {
+            display:none;
+            margin-top:13px;
+            padding:12px 13px;
+            border:1px solid rgba(255,190,105,.2);
+            border-radius:11px;
+            color:#f5ce94;
+            background:rgba(255,174,73,.07);
+            font-size:11px;
+            line-height:1.6;
+        }
+        .notice.show { display:block; }
+
+        .preview-panel { padding:20px; }
+
+        .preview-toolbar {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:10px;
+            margin-bottom:16px;
+        }
+
+        .preview-tag {
+            padding:6px 9px;
+            border:1px solid var(--border);
+            border-radius:30px;
+            color:#b9a7da;
+            font-size:9px;
+        }
+
+        .preview-stage {
+            position:relative;
+            display:grid;
+            place-items:center;
+            min-height:350px;
+            padding:22px;
+            overflow:hidden;
+            border:1px dashed rgba(176,144,226,.28);
+            border-radius:15px;
+            background:
+                    radial-gradient(ellipse at 50% 45%,rgba(122,73,191,.2),transparent 55%),
+                    rgba(7,6,16,.75);
+        }
+
+        .preview-stage::before {
+            content:"";
+            position:absolute;
+            width:230px;height:230px;
+            border:1px solid rgba(176,144,226,.08);
+            border-radius:50%;
+            box-shadow:0 0 0 35px rgba(176,144,226,.025),
+            0 0 0 70px rgba(176,144,226,.02);
+        }
+
+        .empty-preview {
+            position:relative;
+            z-index:1;
+            max-width:270px;
+            text-align:center;
+        }
+
+        .preview-symbol {
+            width:76px;height:76px;
+            display:grid;place-items:center;
+            margin:0 auto 18px;
+            border:1px solid rgba(185,144,255,.25);
+            border-radius:23px;
+            background:linear-gradient(145deg,rgba(154,98,255,.22),rgba(91,78,190,.1));
+            box-shadow:0 0 35px rgba(140,90,255,.12);
+            font-size:31px;
+        }
+
+        .empty-preview h3 {
+            font:600 17px 'Space Grotesk',sans-serif;
+            margin:0 0 9px;
+        }
+        .empty-preview p {
+            color:var(--muted);
+            font-size:11px;
+            line-height:1.7;
+            margin:0;
+        }
+
+        .timeline {
+            display:flex;
+            align-items:center;
+            gap:7px;
+            margin-top:16px;
+        }
+        .timeline-track {
+            flex:1;height:5px;
+            border-radius:10px;
+            background:rgba(167,122,255,.18);
+        }
+        .timeline-track:first-child {
+            background:linear-gradient(90deg,#8959ed,#d47af2);
+        }
+        .timeline-time { color:#88809e;font-size:10px; }
+
+        .preview-meta {
+            display:grid;
+            grid-template-columns:repeat(3,1fr);
+            gap:9px;
+            margin-top:14px;
+        }
+        .meta-card {
+            padding:12px 10px;
+            border:1px solid var(--border);
+            border-radius:11px;
+            background:rgba(10,8,22,.5);
+        }
+        .meta-card small {
+            display:block;
+            color:#827b9d;
+            font-size:9px;
+            margin-bottom:6px;
+        }
+        .meta-card strong { font-size:11px;color:#e8dcff; }
+
+        .tips {
+            display:flex;
+            align-items:flex-start;
+            gap:11px;
+            margin-top:17px;
+            padding:14px;
+            border:1px solid rgba(119,155,255,.15);
+            border-radius:12px;
+            background:rgba(88,115,220,.07);
+        }
+        .tips-icon { font-size:17px; }
+        .tips strong { font-size:11px; }
+        .tips p {
+            margin:5px 0 0;
+            color:var(--muted);
+            font-size:10px;
+            line-height:1.6;
+        }
+
+        .bottom-row {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:15px;
+            margin-top:22px;
+            padding:17px 19px;
+            border:1px solid var(--border);
+            border-radius:15px;
+            background:rgba(22,18,39,.55);
+        }
+        .bottom-row strong { font-size:12px; }
+        .bottom-row p {
+            margin:5px 0 0;
+            color:var(--muted);
+            font-size:10px;
+        }
+        .history-link {
+            color:#c5a4ff;
+            text-decoration:none;
+            font-size:11px;
+            white-space:nowrap;
+        }
+        .history-link:hover { color:white; }
+
+        @media(max-width:1050px) {
+            .sidebar { width:215px; }
+            .main { padding:23px; }
+            .workspace { grid-template-columns:1fr; }
+            .preview-stage { min-height:300px; }
+        }
+        @media(max-width:700px) {
+            .app { display:block; }
+            .sidebar {
+                width:100%;
+                padding:15px;
+                border-right:0;
+                border-bottom:1px solid var(--border);
+            }
+            .brand { padding-bottom:13px; }
+            .nav-label,.sidebar-bottom { display:none; }
+            .sidebar nav {
+                display:flex;
+                gap:5px;
+                overflow-x:auto;
+                padding-bottom:5px;
+            }
+            .nav-link { flex-shrink:0;padding:9px 11px; }
+            .main { padding:20px 14px 35px; }
+            .topbar { margin-bottom:25px; }
+            .editor,.preview-panel { padding:16px; }
+            .preview-stage { min-height:260px; }
+        }
+    </style>
+</head>
+
+<body>
+<div class="glow one"></div>
+<div class="glow two"></div>
+
+<div class="app">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">✦</div>
+            <div class="brand-name">VYORA<span>.</span></div>
+        </div>
+
+        <nav>
+            <div class="nav-label">WORKSPACE</div>
+            <a class="nav-link" href="/"><span class="nav-icon">⌂</span> Dashboard</a>
+            <a class="nav-link" href="/images"><span class="nav-icon">✧</span> AI Images</a>
+            <a class="nav-link active" href="/videos"><span class="nav-icon">▷</span> AI Videos</a>
+            <a class="nav-link" href="/creations"><span class="nav-icon">▧</span> My Creations</a>
+
+            <div class="nav-label">LIBRARY</div>
+            <a class="nav-link" href="/storage"><span class="nav-icon">▤</span> Storage</a>
+            <a class="nav-link" href="/favorites"><span class="nav-icon">♡</span> Favorites</a>
+            <a class="nav-link" href="/history"><span class="nav-icon">◷</span> History</a>
+
+            <div class="nav-label">ACCOUNT</div>
+            <a class="nav-link" href="/analytics"><span class="nav-icon">▥</span> Analytics</a>
+            <a class="nav-link" href="/settings"><span class="nav-icon">⚙</span> Settings</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <strong>✦ Motion starts here</strong>
+            <p>Give your ideas movement. Build your next visual story with VYORA.</p>
+        </div>
+    </aside>
+
+    <main class="main">
+
+        <header class="topbar">
+            <div class="crumb">Workspace &nbsp;/&nbsp; <b>AI Video Studio</b></div>
+            <div class="top-actions">
+                <div class="status-pill">● Studio interface</div>
+                <div class="avatar">V</div>
+            </div>
+        </header>
+
+        <section class="heading-row">
+            <div class="eyebrow">✦ MOTION CREATION WORKSPACE</div>
+            <h1>AI Video <span class="gradient-text">Studio</span></h1>
+            <p class="subtitle">
+                Transform your ideas into cinematic video concepts.
+                Describe a scene and customize its motion settings.
+            </p>
+        </section>
+
+        <section class="workspace">
+
+            <div class="panel editor">
+                <div class="panel-heading">
+                    <h2>▷ Create your video</h2>
+                    <span class="step">01 / CONFIGURE</span>
+                </div>
+
+                <label class="field-label">Choose creation mode</label>
+
+                <div class="mode-switch">
+                    <button class="mode-button selected" type="button" data-mode="text">
+                        ✦ Text to Video
+                    </button>
+                    <button class="mode-button" type="button" data-mode="image">
+                        ▧ Image to Video
+                    </button>
+                </div>
+
+                <label class="field-label" for="prompt">Describe your video</label>
+
+                <textarea id="prompt" maxlength="1200"
+                          placeholder="A cinematic aerial camera movement over a futuristic city at sunset, glowing violet skyscrapers, clouds drifting slowly, dramatic lighting..."></textarea>
+
+                <div class="prompt-footer">
+                    <button class="text-button" id="sampleButton" type="button">✦ Try a sample prompt</button>
+                    <span><span id="charCount">0</span> / 1200</span>
+                </div>
+
+                <div class="upload-box" id="uploadBox">
+                    <strong>▧ Choose a starting image</strong>
+                    <p>Select an image from your device for the image-to-video workflow.</p>
+                    <input type="file" id="imageInput" accept="image/png,image/jpeg,image/webp">
+                    <p id="fileName">No image selected</p>
+                </div>
+
+                <div class="select-grid">
+                    <div>
+                        <label class="field-label" for="duration">Video duration</label>
+                        <select id="duration">
+                            <option value="5 seconds">5 seconds</option>
+                            <option value="10 seconds">10 seconds</option>
+                            <option value="15 seconds">15 seconds</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="field-label" for="ratio">Aspect ratio</label>
+                        <select id="ratio">
+                            <option value="16:9">Widescreen · 16:9</option>
+                            <option value="9:16">Vertical · 9:16</option>
+                            <option value="1:1">Square · 1:1</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="field-label" for="motion">Motion intensity</label>
+                        <select id="motion">
+                            <option value="Subtle">Subtle</option>
+                            <option value="Balanced">Balanced</option>
+                            <option value="Dynamic">Dynamic</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="field-label" for="quality">Quality</label>
+                        <select id="quality">
+                            <option value="Standard">Standard</option>
+                            <option value="High">High</option>
+                            <option value="Ultra">Ultra</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="generate-button" id="generateButton" type="button">
+                    ✦ &nbsp; Generate Video
+                </button>
+
+                <div class="notice" id="notice" role="status" aria-live="polite"></div>
+            </div>
+
+            <div>
+                <div class="panel preview-panel">
+                    <div class="preview-toolbar">
+                        <h2>Video preview</h2>
+                        <span class="preview-tag">PREVIEW CANVAS</span>
+                    </div>
+
+                    <div class="preview-stage">
+                        <div class="empty-preview">
+                            <div class="preview-symbol">▷</div>
+                            <h3>Your next scene starts here</h3>
+                            <p>Your generated video preview will appear here once a video-generation provider is connected.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline">
+                        <span class="timeline-time">00:00</span>
+                        <div class="timeline-track"></div>
+                        <div class="timeline-track"></div>
+                        <div class="timeline-track"></div>
+                        <span class="timeline-time" id="timelineEnd">00:05</span>
+                    </div>
+
+                    <div class="preview-meta">
+                        <div class="meta-card">
+                            <small>DURATION</small>
+                            <strong id="metaDuration">5 seconds</strong>
+                        </div>
+                        <div class="meta-card">
+                            <small>RATIO</small>
+                            <strong id="metaRatio">16:9</strong>
+                        </div>
+                        <div class="meta-card">
+                            <small>MOTION</small>
+                            <strong id="metaMotion">Subtle</strong>
+                        </div>
+                    </div>
+
+                    <div class="tips">
+                        <div class="tips-icon">💡</div>
+                        <div>
+                            <strong>Motion tip</strong>
+                            <p>Describe how the camera moves, what the subject does, and how the environment changes throughout the scene.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <div class="bottom-row">
+            <div>
+                <strong>✦ Every great story begins with an idea</strong>
+                <p>Your completed videos will appear in My Creations after generation is connected.</p>
+            </div>
+            <a class="history-link" href="/creations">Explore creations →</a>
+        </div>
+
+    </main>
+</div>
+
+<script>
+    const promptInput = document.getElementById("prompt");
+    const charCount = document.getElementById("charCount");
+    const uploadBox = document.getElementById("uploadBox");
+    const imageInput = document.getElementById("imageInput");
+    const notice = document.getElementById("notice");
+
+    let selectedMode = "text";
+
+    const duration = document.getElementById("duration");
+    const ratio = document.getElementById("ratio");
+    const motion = document.getElementById("motion");
+    const quality = document.getElementById("quality");
+
+    function updateSettings() {
+        document.getElementById("metaDuration").textContent = duration.value;
+        document.getElementById("metaRatio").textContent = ratio.value;
+        document.getElementById("metaMotion").textContent = motion.value;
+
+        const seconds = Number.parseInt(duration.value, 10);
+        document.getElementById("timelineEnd").textContent =
+            "00:" + String(seconds).padStart(2, "0");
+    }
+
+    promptInput.addEventListener("input", () => {
+        charCount.textContent = promptInput.value.length;
+    });
+
+    document.querySelectorAll(".mode-button").forEach(button => {
+        button.addEventListener("click", () => {
+            document.querySelectorAll(".mode-button").forEach(item =>
+                item.classList.remove("selected")
+            );
+
+            button.classList.add("selected");
+            selectedMode = button.dataset.mode;
+
+            uploadBox.classList.toggle("show", selectedMode === "image");
+            notice.classList.remove("show");
+        });
+    });
+
+    document.getElementById("sampleButton").addEventListener("click", () => {
+        promptInput.value =
+            "A cinematic aerial camera movement above a futuristic violet city at sunset, glowing skyscrapers, drifting clouds, beautiful reflections and atmospheric lighting.";
+
+        charCount.textContent = promptInput.value.length;
+        notice.classList.remove("show");
+        promptInput.focus();
+    });
+
+    imageInput.addEventListener("change", () => {
+        const file = imageInput.files[0];
+
+        document.getElementById("fileName").textContent =
+            file ? "Selected: " + file.name : "No image selected";
+    });
+
+    [duration, ratio, motion, quality].forEach(element => {
+        element.addEventListener("change", updateSettings);
+    });
+
+    document.getElementById("generateButton").addEventListener("click", () => {
+        const prompt = promptInput.value.trim();
+        const file = imageInput.files[0];
+
+        if (!prompt) {
+            notice.textContent = "Please describe the video you want to create first.";
+            notice.classList.add("show");
+            promptInput.focus();
+            return;
+        }
+
+        if (selectedMode === "image" && !file) {
+            notice.textContent = "Please select a starting image for image-to-video mode.";
+            notice.classList.add("show");
+            imageInput.focus();
+            return;
+        }
+
+        notice.textContent =
+            "Your video settings are ready. The video-generation provider is not connected yet. The selected image and settings are only local selections; no video has been generated or uploaded.";
+
+        notice.classList.add("show");
+    });
+
+    updateSettings();
+</script>
+</body>
+</html>

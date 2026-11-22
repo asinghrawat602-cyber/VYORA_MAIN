@@ -1,0 +1,1096 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080812">
+    <title>VYORA AI | Creative Intelligence</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #080812;
+            --panel: rgba(20, 19, 39, .82);
+            --purple: #995cff;
+            --pink: #e15bff;
+            --blue: #548cff;
+            --text: #f8f7ff;
+            --muted: #9290ab;
+            --border: rgba(165, 126, 255, .17);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button { font-family: inherit; }
+
+        /* BACKGROUND */
+
+        .background {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: -1;
+            background:
+                    radial-gradient(ellipse at 70% 10%, rgba(105, 53, 194, .13), transparent 40%),
+                    radial-gradient(ellipse at 10% 75%, rgba(41, 90, 200, .10), transparent 38%),
+                    #080812;
+        }
+
+        .orb {
+            position: absolute;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            filter: blur(110px);
+            opacity: .23;
+            animation: float 12s ease-in-out infinite alternate;
+        }
+
+        .orb.one {
+            background: #913cff;
+            top: -180px;
+            left: 20%;
+        }
+
+        .orb.two {
+            background: #335dff;
+            right: -180px;
+            top: 40%;
+            animation-delay: -4s;
+        }
+
+        .orb.three {
+            background: #d23bff;
+            left: 10%;
+            bottom: -300px;
+            animation-delay: -7s;
+        }
+
+        @keyframes float {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(100px, 80px) scale(1.35); }
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            width: 260px;
+            z-index: 10;
+            padding: 28px 19px;
+            background: rgba(10, 10, 22, .88);
+            backdrop-filter: blur(25px);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 5px 8px;
+            margin-bottom: 43px;
+        }
+
+        .brand-icon {
+            width: 43px;
+            height: 43px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            font-size: 25px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #b76aff, #6440e9, #478dff);
+            box-shadow: 0 0 30px rgba(148, 83, 255, .48);
+        }
+
+        .brand-name {
+            font-size: 23px;
+            font-weight: 900;
+            letter-spacing: 2px;
+        }
+
+        .brand-name span {
+            background: linear-gradient(90deg, #c38bff, #7d9bff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-label {
+            color: #77748f;
+            font-size: 10px;
+            letter-spacing: 2px;
+            font-weight: 800;
+            padding: 0 12px;
+            margin: 22px 0 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 13px 14px;
+            margin-bottom: 5px;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            color: #a5a1bd;
+            font-size: 12px;
+            font-weight: 600;
+            transition: .3s ease;
+        }
+
+        .nav-item .icon {
+            font-size: 18px;
+            width: 23px;
+            text-align: center;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            color: white;
+            background: linear-gradient(100deg, rgba(142, 81, 255, .22), rgba(80, 111, 255, .08));
+            border-color: rgba(160, 112, 255, .28);
+            box-shadow: 0 0 20px rgba(133, 79, 255, .10);
+            transform: translateX(3px);
+        }
+
+        .nav-item.active {
+            color: #d6b7ff;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding-top: 25px;
+        }
+
+        .upgrade {
+            padding: 17px;
+            border-radius: 15px;
+            border: 1px solid rgba(176, 118, 255, .3);
+            background: linear-gradient(145deg, rgba(128, 72, 225, .19), rgba(46, 55, 125, .13));
+        }
+
+        .upgrade h4 {
+            font-size: 12px;
+            margin-bottom: 7px;
+        }
+
+        .upgrade p {
+            font-size: 10px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-left: 260px;
+            padding: 30px 42px 60px;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 45px;
+        }
+
+        .breadcrumb {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .breadcrumb span { color: white; }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .notification {
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            color: white;
+            font-size: 17px;
+            cursor: pointer;
+            transition: .3s;
+        }
+
+        .notification:hover {
+            border-color: var(--purple);
+            background: rgba(153, 92, 255, .15);
+            transform: translateY(-2px);
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 7px 13px 7px 7px;
+            border-radius: 13px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            font-size: 11px;
+            font-weight: 600;
+            transition: .3s;
+        }
+
+        .profile:hover {
+            border-color: var(--purple);
+            background: rgba(153, 92, 255, .12);
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, #a95bff, #486cff);
+            font-weight: 800;
+        }
+
+        /* HERO */
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            padding: 48px 42px;
+            border-radius: 24px;
+            border: 1px solid rgba(167, 111, 255, .29);
+            background:
+                    radial-gradient(ellipse at 85% 30%, rgba(128, 64, 255, .27), transparent 42%),
+                    linear-gradient(115deg, #171128, #111327 65%, #16112a);
+            margin-bottom: 34px;
+            animation: appear .8s ease both;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            width: 340px;
+            height: 340px;
+            right: -90px;
+            top: -170px;
+            border: 1px solid rgba(196, 157, 255, .20);
+            border-radius: 50%;
+            box-shadow:
+                    0 0 0 35px rgba(163, 115, 255, .035),
+                    0 0 0 75px rgba(163, 115, 255, .025),
+                    0 0 100px rgba(150, 90, 255, .2);
+            pointer-events: none;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            color: #c89eff;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 2.5px;
+            margin-bottom: 19px;
+        }
+
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #b77aff;
+            box-shadow: 0 0 12px #b77aff;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            50% { opacity: .35; box-shadow: 0 0 2px #b77aff; }
+        }
+
+        .hero h1 {
+            max-width: 650px;
+            font-size: clamp(32px, 4vw, 49px);
+            line-height: 1.17;
+            letter-spacing: -2px;
+            font-weight: 800;
+        }
+
+        .gradient {
+            background: linear-gradient(90deg, #c48aff, #8d9aff, #ee94ff, #c48aff);
+            background-size: 250% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradientMove 5s linear infinite;
+        }
+
+        @keyframes gradientMove {
+            to { background-position: 250% center; }
+        }
+
+        .hero p {
+            color: #aaa6c3;
+            font-size: 13px;
+            line-height: 1.9;
+            max-width: 480px;
+            margin: 16px 0 25px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            padding: 13px 20px;
+            border-radius: 11px;
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: .3s;
+        }
+
+        .btn-primary {
+            color: white;
+            background: linear-gradient(105deg, #9b5cff, #6949e9);
+            border: 1px solid #ae82ff;
+            box-shadow: 0 5px 27px rgba(136, 75, 255, .27);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 35px rgba(136, 75, 255, .48);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,.035);
+            color: white;
+            border: 1px solid rgba(190, 166, 255, .28);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(144, 91, 255, .16);
+            border-color: #9f75ff;
+        }
+
+        /* SECTIONS */
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 34px 0 17px;
+        }
+
+        .section-heading h2 {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .section-heading span {
+            color: #9993b5;
+            font-size: 10px;
+        }
+
+        .section-heading a:hover span {
+            color: #d2b3ff;
+        }
+
+        /* CREATION CARDS */
+
+        .create-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 19px;
+        }
+
+        .create-card {
+            position: relative;
+            overflow: hidden;
+            padding: 25px;
+            border-radius: 19px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            transition: .35s ease;
+            animation: appear .8s ease both;
+        }
+
+        .create-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(179, 126, 255, .65);
+            box-shadow: 0 15px 45px rgba(115, 65, 190, .15);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .card-icon {
+            width: 47px;
+            height: 47px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            font-size: 23px;
+        }
+
+        .image-card .card-icon {
+            background: linear-gradient(135deg, #6035a4, #a34ce0);
+            box-shadow: 0 0 24px rgba(157, 77, 255, .24);
+        }
+
+        .video-card .card-icon {
+            background: linear-gradient(135deg, #2855b4, #8052e8);
+            box-shadow: 0 0 24px rgba(84, 112, 255, .24);
+        }
+
+        .card-tag {
+            color: #c8a6ff;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            background: rgba(156, 101, 255, .11);
+            border: 1px solid rgba(163, 114, 255, .19);
+            padding: 7px 10px;
+            border-radius: 20px;
+        }
+
+        .create-card h3 {
+            font-size: 19px;
+            margin-bottom: 10px;
+        }
+
+        .create-card p {
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.8;
+            min-height: 40px;
+            margin-bottom: 22px;
+        }
+
+        .card-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            color: #c5a1ff;
+            font-size: 11px;
+            font-weight: 700;
+            transition: .25s;
+        }
+
+        .card-link:hover {
+            color: white;
+            gap: 15px;
+        }
+
+        /* STATS */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+
+        .stat {
+            padding: 20px;
+            border-radius: 16px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            transition: .3s;
+        }
+
+        .stat:hover {
+            border-color: rgba(166, 113, 255, .48);
+            transform: translateY(-3px);
+        }
+
+        .stat-label {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+
+        .stat-icon { font-size: 17px; }
+
+        .stat h2 {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .stat small {
+            color: #8e89a9;
+            font-size: 9px;
+            display: block;
+            margin-top: 8px;
+        }
+
+        /* STORAGE */
+
+        .storage-panel {
+            padding: 23px;
+            border-radius: 17px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+        }
+
+        .storage-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 19px;
+            gap: 12px;
+        }
+
+        .storage-head h3 {
+            font-size: 13px;
+            margin-bottom: 7px;
+        }
+
+        .storage-head p {
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        .storage-value {
+            color: #c5a0ff;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .progress {
+            height: 9px;
+            background: #29253d;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #9251ff, #548dff, #e06dff);
+            border-radius: 20px;
+            transition: width 1s ease;
+        }
+
+        .storage-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 13px;
+            font-size: 9px;
+            color: var(--muted);
+        }
+
+        /* RECENT */
+
+        .recent {
+            padding: 34px 15px;
+            border: 1px dashed rgba(164, 131, 222, .27);
+            border-radius: 15px;
+            text-align: center;
+            color: #8c87a5;
+        }
+
+        .recent-icon {
+            font-size: 32px;
+            margin-bottom: 13px;
+            color: #b48aff;
+        }
+
+        .recent h3 {
+            color: #ded9f3;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .recent p { font-size: 10px; }
+
+        /* TOAST */
+
+        .toast {
+            position: fixed;
+            right: 25px;
+            bottom: 25px;
+            z-index: 100;
+            max-width: calc(100vw - 40px);
+            padding: 15px 19px;
+            border-radius: 13px;
+            border: 1px solid rgba(170, 120, 255, .4);
+            background: rgba(24, 20, 46, .96);
+            color: #eee6ff;
+            font-size: 12px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, .35);
+            opacity: 0;
+            transform: translateY(15px);
+            pointer-events: none;
+            transition: .3s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* FOOTER */
+
+        .footer {
+            text-align: center;
+            padding: 35px 0 0;
+            color: #66627e;
+            font-size: 9px;
+            letter-spacing: 1px;
+        }
+
+        @keyframes appear {
+            from { opacity: 0; transform: translateY(17px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* RESPONSIVE */
+
+        @media(max-width: 1050px) {
+            .sidebar { width: 220px; }
+            .main { margin-left: 220px; padding: 25px; }
+            .stats { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media(max-width: 720px) {
+            .sidebar {
+                width: 70px;
+                padding: 20px 8px;
+            }
+
+            .brand {
+                justify-content: center;
+                padding: 0;
+                margin-bottom: 35px;
+            }
+
+            .brand-name,
+            .nav-label,
+            .nav-item .nav-text,
+            .upgrade { display: none; }
+
+            .nav-item {
+                justify-content: center;
+                padding: 13px 5px;
+            }
+
+            .nav-item .icon { font-size: 19px; }
+
+            .main {
+                margin-left: 70px;
+                width: calc(100% - 70px);
+                padding: 20px 15px;
+            }
+
+            .hero { padding: 30px 22px; }
+            .hero h1 { font-size: 33px; }
+            .create-grid { grid-template-columns: 1fr; }
+            .topbar { margin-bottom: 30px; }
+        }
+
+        @media(max-width: 430px) {
+            .stats { grid-template-columns: 1fr 1fr; }
+            .stat { padding: 14px; }
+            .stat h2 { font-size: 23px; }
+            .profile span { display: none; }
+            .hero h1 { font-size: 29px; }
+            .section-heading h2 { font-size: 14px; }
+            .storage-head { align-items: flex-start; flex-direction: column; }
+        }
+
+        @media(prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="background">
+    <div class="orb one"></div>
+    <div class="orb two"></div>
+    <div class="orb three"></div>
+</div>
+
+<aside class="sidebar">
+
+    <a href="/" class="brand">
+        <div class="brand-icon">V</div>
+        <div class="brand-name"><span>VYORA</span></div>
+    </a>
+
+    <div class="nav-label">WORKSPACE</div>
+
+    <a href="/" class="nav-item active">
+        <span class="icon">⌂</span>
+        <span class="nav-text">Dashboard</span>
+    </a>
+
+    <a href="/images" class="nav-item">
+        <span class="icon">✧</span>
+        <span class="nav-text">AI Images</span>
+    </a>
+
+    <a href="/videos" class="nav-item">
+        <span class="icon">▷</span>
+        <span class="nav-text">AI Videos</span>
+    </a>
+
+    <a href="/creations" class="nav-item">
+        <span class="icon">▣</span>
+        <span class="nav-text">My Creations</span>
+    </a>
+
+    <div class="nav-label">LIBRARY</div>
+
+    <a href="/storage" class="nav-item">
+        <span class="icon">▤</span>
+        <span class="nav-text">Storage</span>
+    </a>
+
+    <a href="/favorites" class="nav-item">
+        <span class="icon">♡</span>
+        <span class="nav-text">Favorites</span>
+    </a>
+
+    <a href="/history" class="nav-item">
+        <span class="icon">◷</span>
+        <span class="nav-text">History</span>
+    </a>
+
+    <div class="nav-label">ACCOUNT</div>
+
+    <a href="/analytics" class="nav-item">
+        <span class="icon">▥</span>
+        <span class="nav-text">Analytics</span>
+    </a>
+
+    <a href="/settings" class="nav-item">
+        <span class="icon">⚙</span>
+        <span class="nav-text">Settings</span>
+    </a>
+
+    <a href="/profile" class="nav-item">
+        <span class="icon">◎</span>
+        <span class="nav-text">My Profile</span>
+    </a>
+
+    <div class="sidebar-bottom">
+        <div class="upgrade">
+            <h4>✦ VYORA CREATIVE</h4>
+            <p>Your imagination deserves a powerful creative studio.</p>
+        </div>
+    </div>
+
+</aside>
+
+<main class="main">
+
+    <header class="topbar">
+
+        <div class="breadcrumb">
+            Workspace / <span>Dashboard</span>
+        </div>
+
+        <div class="top-actions">
+
+            <button class="notification"
+                    type="button"
+                    id="notificationButton"
+                    aria-label="Notifications"
+                    title="Notifications">
+                ♧
+            </button>
+
+            <a href="/profile" class="profile">
+                <div class="avatar">V</div>
+                <span>Creator Account</span>
+            </a>
+
+        </div>
+
+    </header>
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+        <div class="eyebrow">
+            <span class="live-dot"></span>
+            YOUR AI CREATIVE UNIVERSE
+        </div>
+
+        <h1>
+            Imagine it.<br>
+            Create it. <span class="gradient">VYORA it.</span>
+        </h1>
+
+        <p>
+            Welcome to your creative universe. Transform simple ideas
+            into extraordinary images and cinematic videos using
+            the power of artificial intelligence.
+        </p>
+
+        <div class="hero-buttons">
+
+            <a href="/images" class="btn btn-primary">
+                ✧ Create Image
+            </a>
+
+            <a href="/videos" class="btn btn-secondary">
+                ▶ Create Video
+            </a>
+
+        </div>
+
+    </section>
+
+    <!-- CREATION STUDIO -->
+
+    <div class="section-heading">
+        <h2>✦ Create Something Amazing</h2>
+        <span>YOUR CREATIVE STUDIO</span>
+    </div>
+
+    <section class="create-grid">
+
+        <article class="create-card image-card">
+
+            <div class="card-top">
+                <div class="card-icon">✧</div>
+                <div class="card-tag">AI IMAGE STUDIO</div>
+            </div>
+
+            <h3>AI Image Generation</h3>
+
+            <p>
+                Turn your imagination into stunning digital artwork,
+                realistic photography and extraordinary visuals.
+            </p>
+
+            <a href="/images" class="card-link">
+                Create your image <span>→</span>
+            </a>
+
+        </article>
+
+        <article class="create-card video-card">
+
+            <div class="card-top">
+                <div class="card-icon">▷</div>
+                <div class="card-tag">AI VIDEO STUDIO</div>
+            </div>
+
+            <h3>AI Video Generation</h3>
+
+            <p>
+                Transform prompts and images into cinematic videos
+                and bring your creative stories to life.
+            </p>
+
+            <a href="/videos" class="card-link">
+                Create your video <span>→</span>
+            </a>
+
+        </article>
+
+    </section>
+
+    <!-- STATISTICS -->
+
+    <div class="section-heading">
+        <h2>◈ Your Creative Overview</h2>
+        <span>ALL-TIME ACTIVITY</span>
+    </div>
+
+    <section class="stats">
+
+        <div class="stat">
+            <div class="stat-label">
+                <span class="stat-icon">✧</span>
+                TOTAL IMAGES
+            </div>
+            <h2>0</h2>
+            <small>Images generated</small>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">
+                <span class="stat-icon">▷</span>
+                TOTAL VIDEOS
+            </div>
+            <h2>0</h2>
+            <small>Videos generated</small>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">
+                <span class="stat-icon">▣</span>
+                GENERATIONS
+            </div>
+            <h2>0</h2>
+            <small>Total creative projects</small>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">
+                <span class="stat-icon">▤</span>
+                STORAGE
+            </div>
+            <h2>0 GB</h2>
+            <small>Of 5 GB allocated</small>
+        </div>
+
+    </section>
+
+    <!-- STORAGE -->
+
+    <div class="section-heading">
+        <h2>▤ Storage Overview</h2>
+        <a href="/storage">
+            <span>Manage Storage →</span>
+        </a>
+    </div>
+
+    <section class="storage-panel">
+
+        <div class="storage-head">
+
+            <div>
+                <h3>Your Creative Storage</h3>
+                <p>Keep all your generated creations organized.</p>
+            </div>
+
+            <div class="storage-value">0 GB / 5 GB</div>
+
+        </div>
+
+        <div class="progress">
+            <div class="progress-fill"></div>
+        </div>
+
+        <div class="storage-footer">
+            <span>0% used</span>
+            <span>5 GB available</span>
+        </div>
+
+    </section>
+
+    <!-- RECENT CREATIONS -->
+
+    <div class="section-heading">
+        <h2>✧ Recent Creations</h2>
+        <a href="/creations">
+            <span>View All →</span>
+        </a>
+    </div>
+
+    <section class="recent">
+
+        <div class="recent-icon">✧</div>
+
+        <h3>Your creative journey starts here.</h3>
+
+        <p>
+            Your generated images and videos will appear here.
+        </p>
+
+    </section>
+
+    <footer class="footer">
+        VYORA AI © 2026 · IMAGINATION MEETS INTELLIGENCE
+    </footer>
+
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite">
+    ✦ You're all caught up! No new notifications.
+</div>
+
+<script>
+    // Highlight the navigation item for the current page.
+    const currentPath = window.location.pathname;
+
+    document.querySelectorAll(".nav-item").forEach(item => {
+        const itemPath = new URL(item.href).pathname;
+
+        item.classList.toggle(
+            "active",
+            itemPath === currentPath
+        );
+    });
+
+    // Notification interaction.
+    const notificationButton = document.getElementById("notificationButton");
+    const toast = document.getElementById("toast");
+
+    let toastTimeout;
+
+    notificationButton.addEventListener("click", () => {
+        toast.classList.add("show");
+
+        clearTimeout(toastTimeout);
+
+        toastTimeout = setTimeout(() => {
+            toast.classList.remove("show");
+        }, 2800);
+    });
+</script>
+
+</body>
+</html>
